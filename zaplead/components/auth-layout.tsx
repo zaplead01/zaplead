@@ -38,7 +38,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <p className="text-sm text-primary-foreground/70">
-          Mais de 12.000 vendedores autônomos já usam o ZapLead.
+          Organize seus clientes desde o primeiro dia.
         </p>
       </div>
 
