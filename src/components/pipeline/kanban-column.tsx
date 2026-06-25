@@ -2,6 +2,8 @@
 
 import { PipelineStage } from "@/src/types/pipeline/pipeline-stage";
 
+import { useDroppable } from "@dnd-kit/core";
+
 import { usePipelineCustomers } from "@/src/hooks/use-pipeline-customers";
 import { CustomerCard } from "./customer-card";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -24,8 +26,18 @@ export function KanbanColumn({
   customers,
   loading,
 } = usePipelineCustomers(stage.id);
+const { setNodeRef, isOver } = useDroppable({
+  id: stage.id,
+});
   return (
-    <Card className="w-80 shrink-0">
+    <Card
+  ref={setNodeRef}
+  className={`w-80 shrink-0 transition-colors ${
+    isOver
+      ? "border-primary bg-primary/5"
+      : ""
+  }`}
+>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">

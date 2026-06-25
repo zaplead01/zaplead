@@ -2,13 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { pipelineCustomersService } from "@/src/services/pipeline-customers.service";
+import { customerService } from "@/src/services/customer.service";
 
 import { Customer } from "@/src/types/customer/customer";
 
-export function usePipelineCustomers(
-  stageId: string
-) {
+export function usePipelineCustomers() {
   const [customers, setCustomers] =
     useState<Customer[]>([]);
 
@@ -19,9 +17,7 @@ export function usePipelineCustomers(
     setLoading(true);
 
     const result =
-      await pipelineCustomersService.list(
-        stageId
-      );
+      await customerService.list();
 
     if (!result.success) {
       console.error(result.message);
@@ -31,16 +27,13 @@ export function usePipelineCustomers(
 
     setCustomers(result.data ?? []);
     setLoading(false);
-  }, [stageId]);
-
-  useEffect(() => {
-    if (!stageId) return;
-
-    load();
-  }, [load, stageId]);
-
+  }, []);
+useEffect(() => {
+  load();
+}, [load]);
   return {
     customers,
+    setCustomers,
     loading,
     reload: load,
   };

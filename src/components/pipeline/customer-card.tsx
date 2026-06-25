@@ -6,6 +6,9 @@
     DollarSign,
   } from "lucide-react";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
   import { Customer } from "@/src/types/customer/customer";
 
   import { Card } from "@/src/components/ui/card";
@@ -24,8 +27,37 @@
   export function CustomerCard({
     customer,
   }: Props) {
+    const {
+  attributes,
+  listeners,
+  setNodeRef,
+  transform,
+  transition,
+  isDragging,
+} = useSortable({
+  id: customer.id,
+});
+
+const style = {
+  transform: CSS.Transform.toString(transform),
+  transition,
+};
     return (
-      <Card className="cursor-pointer p-4 transition-all hover:shadow-md hover:border-primary">
+      <Card
+  ref={setNodeRef}
+  style={style}
+  {...attributes}
+  {...listeners}
+  className={`
+    cursor-grab
+    p-4
+    transition-all
+    hover:shadow-md
+    hover:border-primary
+    active:cursor-grabbing
+    ${isDragging ? "opacity-50 shadow-xl rotate-2" : ""}
+  `}
+>
         <div className="flex items-start gap-3">
           <Avatar>
             <AvatarFallback>

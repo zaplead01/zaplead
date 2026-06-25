@@ -1,5 +1,13 @@
 "use client";
+import {
+  DndContext,
+  DragEndEvent,
+} from "@dnd-kit/core";
 
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { usePipeline } from "@/src/hooks/use-pipeline";
 import { usePipelineStages } from "@/src/hooks/use-pipeline-stages";
 
@@ -39,8 +47,19 @@ export function PipelineBoard() {
       </p>
     );
   }
+  function handleDragEnd(event: DragEndEvent) {
+  const { active, over } = event;
+
+  console.log("Cliente:", active.id);
+  console.log("Destino:", over?.id);
+}
 
   return (
+    <DndContext onDragEnd={handleDragEnd}>
+  <SortableContext
+    items={stages.map((stage) => stage.id)}
+    strategy={horizontalListSortingStrategy}
+  >
     <div className="flex gap-6 overflow-x-auto pb-4">
       {stages.map((stage) => (
         <KanbanColumn
@@ -49,5 +68,7 @@ export function PipelineBoard() {
         />
       ))}
     </div>
+  </SortableContext>
+</DndContext>
   );
 }
