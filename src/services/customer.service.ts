@@ -1,5 +1,6 @@
 import { customerRepository } from "@/src/repositories/customer.repository";
 import { dashboardRepository } from "@/src/repositories/dashboard.repository";
+import { pipelineRepository } from "@/src/repositories/pipeline.repository";
 
 import { authService } from "./auth.service";
 
@@ -64,16 +65,31 @@ class CustomerService {
         return failure(Errors.ORGANIZATION_NOT_FOUND);
       }
 
+      const { data: pipeline } =
+        await pipelineRepository.getDefault(
+          membership.organization_id
+        );
+
+      if (!pipeline) {
+        return failure("Pipeline padrão não encontrado.");
+      }
+
+      const { data: stage } =
+        await pipelineRepository.getFirstStage(
+          pipeline.id
+        );
+
+      if (!stage) {
+        return failure("Primeira etapa não encontrada.");
+      }
+
       const { data, error } =
         await customerRepository.create({
           ...customer,
           organization_id: membership.organization_id,
+          pipeline_id: pipeline.id,
+          pipeline_stage_id: stage.id,
         });
-
-        console.log("CUSTOMER", customer);
-        console.log("MEMBERSHIP", membership);
-        console.log("DATA", data);
-        console.log("ERROR", error);
 
       if (error) {
         return failure(getErrorMessage(error));
@@ -87,10 +103,11 @@ class CustomerService {
       return failure(getErrorMessage(error));
     }
   }
-  
+
   async getById(id: string) {
     try {
-      const { data, error } = await customerRepository.getById(id);
+      const { data, error } =
+        await customerRepository.getById(id);
 
       if (error) {
         return failure(getErrorMessage(error));
@@ -111,10 +128,11 @@ class CustomerService {
     customer: Partial<Customer>
   ) {
     try {
-      const { data, error } = await customerRepository.update(
-        id,
-        customer
-      );
+      const { data, error } =
+        await customerRepository.update(
+          id,
+          customer
+        );
 
       if (error) {
         return failure(getErrorMessage(error));
@@ -131,7 +149,8 @@ class CustomerService {
 
   async delete(id: string) {
     try {
-      const { error } = await customerRepository.delete(id);
+      const { error } =
+        await customerRepository.delete(id);
 
       if (error) {
         return failure(getErrorMessage(error));
@@ -145,65 +164,6 @@ class CustomerService {
       return failure(getErrorMessage(error));
     }
   }
-
-async getById(id: string) {
-  try {
-    const { data, error } =
-      await customerRepository.getById(id);
-
-    if (error) {
-      return failure(getErrorMessage(error));
-    }
-
-    return success(data);
-  } catch (error) {
-    return failure(getErrorMessage(error));
-  }
 }
-
-async update(
-  id: string,
-  customer: Partial<Customer>
-) {
-  try {
-    const { data, error } =
-      await customerRepository.update(id, customer);
-
-    if (error) {
-      return failure(getErrorMessage(error));
-    }
-
-    return success(
-      data,
-      Messages.CUSTOMER_UPDATED
-    );
-  } catch (error) {
-    return failure(getErrorMessage(error));
-  }
-}
-
-
-async delete(id: string) {
-  try {
-    const { error } =
-      await customerRepository.delete(id);
-
-    if (error) {
-      return failure(getErrorMessage(error));
-    }
-
-    return success(
-      null,
-      Messages.CUSTOMER_DELETED
-    );
-  } catch (error) {
-    return failure(getErrorMessage(error));
-  }
-}
-
-}
-
-
-
 
 export const customerService = new CustomerService();
