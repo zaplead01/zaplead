@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { useCustomer } from "@/src/hooks/use-customer";
 
 import {
   customerSchema,
@@ -22,40 +24,66 @@ import {
   FieldLabel,
 } from "@/src/components/ui/field";
 
-export function CustomerForm() {
-  const router = useRouter();
+type CustomerFormProps = {
+  customerId?: string;
+};
 
+export function CustomerForm({
+  customerId,
+}: CustomerFormProps) {
+  const router = useRouter();
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<CustomerFormData>({
-    resolver: zodResolver(customerSchema),
-    defaultValues: {
-      full_name: "",
-      company: "",
-      phone: "",
-      email: "",
-      lead_source: "",
-      estimated_value: undefined,
-      notes: "",
-    },
+  customer,
+} = useCustomer(customerId ?? "");
+const {
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors, isSubmitting },
+} = useForm<CustomerFormData>({
+  resolver: zodResolver(customerSchema),
+  defaultValues: {
+    full_name: "",
+    company: "",
+    phone: "",
+    email: "",
+    lead_source: "",
+    estimated_value: undefined,
+    notes: "",
+  },
+});
+
+useEffect(() => {
+  if (!customer) return;
+
+  reset({
+    full_name: customer.full_name,
+    company: customer.company ?? "",
+    phone: customer.phone ?? "",
+    email: customer.email ?? "",
+    lead_source: customer.lead_source ?? "",
+    estimated_value: customer.estimated_value ?? undefined,
+    notes: customer.notes ?? "",
   });
+}, [customer, reset]);
 
   async function onSubmit(data: CustomerFormData) {
-    console.log("ON SUBMIT", data);
-    const result = await customerService.create(data);
+    console.log("ID:", customerId);
+  console.log("DADOS:", data);
+  const result = customerId
+    ? await customerService.update(customerId, data)
+    : await customerService.create(data);
 
-    if (!result.success) {
-      toast.error(result.message);
-      return;
-    }
-
-    toast.success(result.message);
-
-    router.push("/clientes");
-    router.refresh();
+  if (!result.success) {
+    toast.error(result.message);
+    return;
   }
+
+  toast.success(result.message);
+
+  router.push("/clientes");
+  router.refresh();
+}
 
   return (
     <Card>
@@ -179,8 +207,12 @@ export function CustomerForm() {
     disabled={isSubmitting}
   >
     {isSubmitting
-      ? "Salvando..."
-      : "Salvar Cliente"}
+  ? customerId
+    ? "Atualizando..."
+    : "Salvando..."
+  : customerId
+    ? "Atualizar Cliente"
+    : "Salvar Cliente"}
   </Button>
 </div>
           </FieldGroup>

@@ -86,7 +86,7 @@ export function CustomersTable() {
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
         <Input
-          placeholder="Buscar cliente..."
+          placeholder="Buscar por nome, empresa, telefone ou e-mail..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9"
@@ -97,24 +97,22 @@ export function CustomersTable() {
       <Card className="overflow-hidden p-0">
 
         {filteredCustomers.length === 0 ? (
+  <Empty className="py-16">
+    <EmptyHeader>
+      <EmptyTitle>
+        {customers.length === 0
+          ? "Nenhum cliente cadastrado"
+          : "Nenhum resultado encontrado"}
+      </EmptyTitle>
 
-          <Empty className="py-16">
-
-            <EmptyHeader>
-
-              <EmptyTitle>
-                Nenhum cliente encontrado
-              </EmptyTitle>
-
-              <EmptyDescription>
-                Cadastre seu primeiro cliente.
-              </EmptyDescription>
-
-            </EmptyHeader>
-
-          </Empty>
-
-        ) : (
+      <EmptyDescription>
+        {customers.length === 0
+          ? "Cadastre seu primeiro cliente."
+          : "Tente pesquisar por outro nome, telefone ou empresa."}
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+) : (
 
           <Table>
 

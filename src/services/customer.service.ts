@@ -146,7 +146,60 @@ class CustomerService {
     }
   }
 
+async getById(id: string) {
+  try {
+    const { data, error } =
+      await customerRepository.getById(id);
 
+    if (error) {
+      return failure(getErrorMessage(error));
+    }
+
+    return success(data);
+  } catch (error) {
+    return failure(getErrorMessage(error));
+  }
+}
+
+async update(
+  id: string,
+  customer: Partial<Customer>
+) {
+  try {
+    const { data, error } =
+      await customerRepository.update(id, customer);
+
+    if (error) {
+      return failure(getErrorMessage(error));
+    }
+
+    return success(
+      data,
+      Messages.CUSTOMER_UPDATED
+    );
+  } catch (error) {
+    return failure(getErrorMessage(error));
+  }
+}
+
+
+async delete(id: string) {
+  try {
+    const { error } =
+      await customerRepository.delete(id);
+
+    if (error) {
+      return failure(getErrorMessage(error));
+    }
+
+    return success(
+      null,
+      Messages.CUSTOMER_DELETED
+    );
+  } catch (error) {
+    return failure(getErrorMessage(error));
+  }
+}
 
 }
 

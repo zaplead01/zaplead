@@ -33,16 +33,22 @@ class CustomerRepository {
   }
 
   async update(
-    id: string,
-    customer: Partial<Customer>
-  ) {
-    return await supabase
-      .from("customers")
-      .update(customer)
-      .eq("id", id)
-      .select()
-      .single();
-  }
+  id: string,
+  customer: Partial<Customer>
+) {
+  console.log("ID:", id);
+  console.log("CUSTOMER:", customer);
+
+  const result = await supabase
+    .from("customers")
+    .update(customer)
+    .eq("id", id)
+    .select("*");
+
+  console.log("RESULT:", result);
+
+  return result;
+}
 
   async delete(id: string) {
     return await supabase
