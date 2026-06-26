@@ -49,6 +49,22 @@ async getFirstStage(
     .single();
 }
 
+async create(
+  organizationId: string,
+  name: string
+) {
+  return await supabase
+    .from("pipelines")
+    .insert({
+      organization_id: organizationId,
+      name,
+      is_default: true,
+      is_active: true,
+    })
+    .select()
+    .single();
+}
+
 }
 
 export const pipelineRepository =

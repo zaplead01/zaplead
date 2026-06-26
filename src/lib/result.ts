@@ -11,9 +11,9 @@ export function success<T>(
   };
 }
 
-export function failure(
+export function failure<T = never>(
   message: string
-): ServiceResponse {
+): ServiceResponse<T> {
   return {
     success: false,
     message,

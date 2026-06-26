@@ -1,41 +1,48 @@
 import { pipelineRepository } from "@/src/repositories/pipeline.repository";
-import { dashboardRepository } from "@/src/repositories/dashboard.repository";
-import { authService } from "./auth.service";
+
+import { currentOrganizationService } from "./current-organization.service";
+
 import { Pipeline } from "@/src/types/pipeline/pipeline";
-import { success, failure } from "@/src/lib/result";
-import { Errors } from "@/src/constants/errors";
+import { PipelineStage } from "@/src/types/pipeline/pipeline-stage";
+
+import {
+  success,
+  failure,
+} from "@/src/lib/result";
+
 import { getErrorMessage } from "@/src/utils/get-error-message";
 
 class PipelineService {
   async list() {
     try {
-      const {
-        data: { user },
-      } = await authService.me();
+      const context =
+        await currentOrganizationService.get();
 
-      if (!user) {
-        return failure(Errors.USER_NOT_FOUND);
+      if (!context.success) {
+        return context;
       }
 
-      const { data: membership } =
-        await dashboardRepository.getMembership(user.id);
-
-      if (!membership) {
-        return failure(Errors.ORGANIZATION_NOT_FOUND);
-      }
+      const { organizationId } =
+        context.data!;
 
       const { data, error } =
         await pipelineRepository.list(
-          membership.organization_id
+          organizationId
         );
 
       if (error) {
-        return failure(getErrorMessage(error));
+        return failure(
+          getErrorMessage(error)
+        );
       }
 
-      return success<Pipeline[]>(data ?? []);
+      return success<Pipeline[]>(
+        data ?? []
+      );
     } catch (error) {
-      return failure(getErrorMessage(error));
+      return failure(
+        getErrorMessage(error)
+      );
     }
   }
 
@@ -49,12 +56,18 @@ class PipelineService {
         );
 
       if (error) {
-        return failure(getErrorMessage(error));
+        return failure(
+          getErrorMessage(error)
+        );
       }
 
-      return success(data ?? []);
+      return success<PipelineStage[]>(
+        data ?? []
+      );
     } catch (error) {
-      return failure(getErrorMessage(error));
+      return failure(
+        getErrorMessage(error)
+      );
     }
   }
 }
