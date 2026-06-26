@@ -16,44 +16,86 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 
+import { Input } from "@/src/components/ui/input";
+
 import { CustomerInfoCard } from "./customer-info-card";
 
 import { formatCurrency } from "@/src/utils/currency";
 
 type Props = {
   customer: Customer;
+
+  editing: boolean;
+
+  form: {
+    estimated_value: number;
+    lead_source: string;
+  };
+
+  setForm: React.Dispatch<
+    React.SetStateAction<any>
+  >;
 };
 
 export function CustomerNegotiation({
   customer,
+  editing,
+  form,
+  setForm,
 }: Props) {
   return (
     <Card className="border-0 shadow-sm">
-
       <CardHeader>
-
         <CardTitle>
-
           Negociação
-
         </CardTitle>
-
       </CardHeader>
 
       <CardContent className="space-y-3">
-
         <CustomerInfoCard
           icon={<DollarSign size={18} />}
           title="Valor estimado"
-          value={formatCurrency(
-            customer.estimated_value ?? 0
-          )}
+          value={
+            editing ? (
+              <Input
+                type="number"
+                value={form.estimated_value}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    estimated_value: Number(
+                      e.target.value
+                    ),
+                  }))
+                }
+              />
+            ) : (
+              formatCurrency(
+                customer.estimated_value ?? 0
+              )
+            )
+          }
         />
 
         <CustomerInfoCard
           icon={<Target size={18} />}
           title="Origem"
-          value={customer.lead_source}
+          value={
+            editing ? (
+              <Input
+                value={form.lead_source}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    lead_source:
+                      e.target.value,
+                  }))
+                }
+              />
+            ) : (
+              customer.lead_source ?? "-"
+            )
+          }
         />
 
         <CustomerInfoCard
@@ -65,20 +107,12 @@ export function CustomerNegotiation({
           }
         />
 
-       <CustomerInfoCard
-  icon={<Workflow size={18} />}
-  title="Etapa"
-  value="-"
-/>
-
-<CustomerInfoCard
-  icon={<UserRound size={18} />}
-  title="Responsável"
-  value="-"
-/>
-
+        <CustomerInfoCard
+          icon={<UserRound size={18} />}
+          title="Responsável"
+          value="-"
+        />
       </CardContent>
-
     </Card>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Customer } from "@/src/types/customer/customer";
+import { Input } from "@/src/components/ui/input";
 
 import {
   Card,
@@ -19,10 +20,25 @@ import { CustomerInfoCard } from "./customer-info-card";
 
 type Props = {
   customer: Customer;
+
+  editing: boolean;
+
+  form: {
+    company: string;
+    phone: string;
+    email: string;
+  };
+
+  setForm: React.Dispatch<
+    React.SetStateAction<any>
+  >;
 };
 
 export function CustomerContact({
   customer,
+  editing,
+  form,
+  setForm,
 }: Props) {
   return (
     <Card className="border-0 shadow-sm">
@@ -42,19 +58,56 @@ export function CustomerContact({
         <CustomerInfoCard
           icon={<Phone size={18} />}
           title="Telefone"
-          value={customer.phone}
+          value={editing ? (
+  <Input
+    value={form.phone}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        phone: e.target.value,
+      }))
+    }
+  />
+) : (
+  customer.phone || "-"
+)}
         />
 
         <CustomerInfoCard
           icon={<Mail size={18} />}
           title="Email"
-          value={customer.email}
+          value={editing ? (
+  <Input
+    type="email"
+    value={form.email}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        email: e.target.value,
+      }))
+    }
+  />
+) : (
+  customer.email || "-"
+)}
         />
 
         <CustomerInfoCard
           icon={<Building2 size={18} />}
           title="Empresa"
-          value={customer.company}
+          value={editing ? (
+  <Input
+    value={form.company}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        company: e.target.value,
+      }))
+    }
+  />
+) : (
+  customer.company || "-"
+)}
         />
 
       </CardContent>

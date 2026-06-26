@@ -57,6 +57,19 @@ export function useKanban() {
         customer.id === activeCustomerId
     ) ?? null;
 
+function updateCustomer(updatedCustomer: typeof customers[number]) {
+  setCustomers((previous) =>
+    previous.map((customer) =>
+      customer.id === updatedCustomer.id
+        ? {
+            ...customer,
+            ...updatedCustomer,
+          }
+        : customer
+    )
+  );
+}
+
   function handleDragStart(
     event: DragStartEvent
   ) {
@@ -64,6 +77,7 @@ export function useKanban() {
       event.active.id as string
     );
   }
+  
 
   async function handleDragEnd(
     event: DragEndEvent
@@ -120,6 +134,8 @@ export function useKanban() {
   }
 
   return {
+updateCustomer,
+
     pipeline,
     columns,
 

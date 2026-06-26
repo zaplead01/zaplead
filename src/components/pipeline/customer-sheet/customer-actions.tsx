@@ -13,10 +13,18 @@ import { Button } from "@/src/components/ui/button";
 
 type Props = {
   customer: Customer;
+  editing: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
 };
 
 export function CustomerActions({
   customer,
+  editing,
+  onEdit,
+  onCancel,
+  onSave,
 }: Props) {
   function openWhatsapp() {
     if (!customer.phone) return;
@@ -31,9 +39,7 @@ export function CustomerActions({
 
   return (
     <div>
-
       <div className="grid grid-cols-2 gap-3">
-
         <Button
           onClick={openWhatsapp}
           className="gap-2"
@@ -42,13 +48,33 @@ export function CustomerActions({
           WhatsApp
         </Button>
 
-        <Button
-          variant="outline"
-          className="gap-2"
-        >
-          <Pencil className="h-4 w-4" />
-          Editar
-        </Button>
+        {editing ? (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              onClick={onSave}
+              className="flex-1"
+            >
+              Salvar
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={onEdit}
+            className="gap-2"
+          >
+            <Pencil className="h-4 w-4" />
+            Editar
+          </Button>
+        )}
 
         <Button
           variant="outline"
@@ -65,9 +91,7 @@ export function CustomerActions({
           <MoreHorizontal className="h-4 w-4" />
           Mais
         </Button>
-
       </div>
-
     </div>
   );
 }
