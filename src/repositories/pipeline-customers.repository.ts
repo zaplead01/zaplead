@@ -2,7 +2,9 @@ import { supabase } from "@/src/lib/supabase/client";
 
 class PipelineCustomersRepository {
   async list(stageId: string) {
-    return await supabase
+   
+
+    const result = await supabase
       .from("customers")
       .select("*")
       .eq("pipeline_stage_id", stageId)
@@ -10,6 +12,10 @@ class PipelineCustomersRepository {
       .order("updated_at", {
         ascending: false,
       });
+
+    
+
+    return result;
   }
 }
 

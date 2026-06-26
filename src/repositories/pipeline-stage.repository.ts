@@ -1,6 +1,18 @@
 import { supabase } from "@/src/lib/supabase/client";
 
 class PipelineStageRepository {
+  async list(
+    pipelineId: string
+  ) {
+    return await supabase
+      .from("pipeline_stages")
+      .select("*")
+      .eq("pipeline_id", pipelineId)
+      .order("position", {
+        ascending: true,
+      });
+  }
+
   async createMany(
     stages: {
       pipeline_id: string;
@@ -9,17 +21,12 @@ class PipelineStageRepository {
       color: string;
     }[]
   ) {
-    return await supabase
-      .from("pipeline_stages")
-      .insert(stages);
-  }
+    const result = await supabase
+  .from("pipeline_stages")
+  .insert(stages)
+  .select();
 
-  async list(pipelineId: string) {
-    return await supabase
-      .from("pipeline_stages")
-      .select("*")
-      .eq("pipeline_id", pipelineId)
-      .order("position");
+    return result;
   }
 }
 

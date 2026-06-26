@@ -1,6 +1,8 @@
 import { organizationRepository } from "@/src/repositories/organization.repository";
 import { organizationUserRepository } from "@/src/repositories/organization-user.repository";
 
+import { organizationSetupService } from "./organization-setup.service";
+
 class OrganizationService {
   private generateSlug(name: string) {
     return name
@@ -11,12 +13,15 @@ class OrganizationService {
       .replace(/(^-|-$)/g, "");
   }
 
-  async ensureOrganization(userId: string, profile: {
-    full_name: string;
-    phone?: string | null;
-    email?: string | null;
-    business?: string | null;
-  }) {
+  async ensureOrganization(
+    userId: string,
+    profile: {
+      full_name: string;
+      phone?: string | null;
+      email?: string | null;
+      business?: string | null;
+    }
+  ) {
     // Já pertence a uma organização?
     const { data: membership } =
       await organizationUserRepository.getByUser(userId);
@@ -53,6 +58,10 @@ class OrganizationService {
     if (memberError) {
       throw memberError;
     }
+
+    await organizationSetupService.createDefaultPipeline(
+      organization.id
+    );
 
     return organization.id;
   }

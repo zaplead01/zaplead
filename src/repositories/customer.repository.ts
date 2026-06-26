@@ -8,7 +8,9 @@ class CustomerRepository {
       .select("*")
       .eq("organization_id", organizationId)
       .eq("is_active", true)
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false,
+      });
   }
 
   async getById(id: string) {
@@ -33,22 +35,30 @@ class CustomerRepository {
   }
 
   async update(
-  id: string,
-  customer: Partial<Customer>
-) {
-  console.log("ID:", id);
-  console.log("CUSTOMER:", customer);
+    id: string,
+    customer: Partial<Customer>
+  ) {
+    return await supabase
+      .from("customers")
+      .update(customer)
+      .eq("id", id)
+      .select()
+      .single();
+  }
 
-  const result = await supabase
-    .from("customers")
-    .update(customer)
-    .eq("id", id)
-    .select("*");
-
-  console.log("RESULT:", result);
-
-  return result;
-}
+  async move(
+    customerId: string,
+    pipelineStageId: string
+  ) {
+    return await supabase
+      .from("customers")
+      .update({
+        pipeline_stage_id: pipelineStageId,
+      })
+      .eq("id", customerId)
+      .select()
+      .single();
+  }
 
   async delete(id: string) {
     return await supabase

@@ -1,36 +1,41 @@
 "use client";
-import {
-  DndContext,
-  DragEndEvent,
-} from "@dnd-kit/core";
+
+import { useState } from "react";
 
 import {
-  SortableContext,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { usePipeline } from "@/src/hooks/use-pipeline";
-import { usePipelineStages } from "@/src/hooks/use-pipeline-stages";
+  DndContext,
+} from "@dnd-kit/core";
+
+import { CustomerSheet } from "./customer-sheet/customer-sheet";
+import { KanbanColumn } from "./kanban-column";
+import { CustomerCard } from "./customer-card";
+
+import { useKanban } from "@/src/hooks/use-kanban";
+
+import { Customer } from "@/src/types/customer/customer";
 
 import { Skeleton } from "@/src/components/ui/skeleton";
 
-import { KanbanColumn } from "./kanban-column";
+import {
+  DragOverlay,
+} from "@dnd-kit/core";
 
 export function PipelineBoard() {
   const {
-    pipelines,
+    pipeline,
+    columns,
     loading,
-  } = usePipeline();
+    activeCustomer,
+    handleDragStart,
+    handleDragEnd,
+  } = useKanban();
 
-  const pipeline = pipelines[0];
+  const [
+    selectedCustomer,
+    setSelectedCustomer,
+  ] = useState<Customer | null>(null);
 
-  const {
-    stages,
-    loading: loadingStages,
-  } = usePipelineStages(
-    pipeline?.id ?? ""
-  );
-
-  if (loading || loadingStages) {
+  if (loading) {
     return (
       <div className="flex gap-4">
         <Skeleton className="h-[600px] w-80" />
@@ -47,28 +52,45 @@ export function PipelineBoard() {
       </p>
     );
   }
-  function handleDragEnd(event: DragEndEvent) {
-  const { active, over } = event;
-
-  console.log("Cliente:", active.id);
-  console.log("Destino:", over?.id);
-}
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-  <SortableContext
-    items={stages.map((stage) => stage.id)}
-    strategy={horizontalListSortingStrategy}
-  >
-    <div className="flex gap-6 overflow-x-auto pb-4">
-      {stages.map((stage) => (
-        <KanbanColumn
-          key={stage.id}
-          stage={stage}
-        />
-      ))}
-    </div>
-  </SortableContext>
-</DndContext>
+    <>
+      <CustomerSheet
+        customer={selectedCustomer}
+        open={!!selectedCustomer}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedCustomer(null);
+          }
+        }}
+      />
+
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-6 overflow-x-auto pb-4">
+          {columns.map((column) => (
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              onCustomerClick={
+                setSelectedCustomer
+              }
+            />
+          ))}
+        </div>
+
+        <DragOverlay>
+          {activeCustomer ? (
+            <div className="rotate-2 scale-105 opacity-95">
+              <CustomerCard
+                customer={activeCustomer}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    </>
   );
 }

@@ -30,11 +30,11 @@ export function useCustomers() {
     load();
   }, [load]);
 
-  return {
-    customers,
-    loading,
-    reload: load,
-  };
-
+return {
+  customers,
+  setCustomers,
+  loading,
+  reload: load,
+};
   
 }

@@ -155,7 +155,6 @@ class CustomerService {
       if (error) {
         return failure(getErrorMessage(error));
       }
-
       return success(
         undefined,
         Messages.CUSTOMER_DELETED
@@ -164,6 +163,30 @@ class CustomerService {
       return failure(getErrorMessage(error));
     }
   }
+
+async move(
+  customerId: string,
+  pipelineStageId: string
+) {
+  try {
+    const { data, error } =
+      await customerRepository.move(
+        customerId,
+        pipelineStageId
+      );
+
+    if (error) {
+      return failure(getErrorMessage(error));
+    }
+
+    return success(
+      data,
+      "Cliente movido com sucesso."
+    );
+  } catch (error) {
+    return failure(getErrorMessage(error));
+  }
+}
 }
 
 export const customerService = new CustomerService();

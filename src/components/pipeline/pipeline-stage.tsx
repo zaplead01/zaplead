@@ -21,6 +21,7 @@ export function PipelineStage({
     customers,
     loading,
   } = usePipelineCustomers(stage.id);
+  
 
   return (
     <Card>
