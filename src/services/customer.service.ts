@@ -4,6 +4,8 @@ import { pipelineRepository } from "@/src/repositories/pipeline.repository";
 
 import { authService } from "./auth.service";
 
+import { customerActivityService } from "./customer-activity.service";
+
 import { Customer } from "@/src/types/customer/customer";
 import { success, failure } from "@/src/lib/result";
 import { Messages } from "@/src/constants/messages";
@@ -17,6 +19,7 @@ class CustomerService {
         data: { user },
       } = await authService.me();
 
+      
       if (!user) {
         return failure(Errors.USER_NOT_FOUND);
       }
@@ -133,11 +136,19 @@ class CustomerService {
           id,
           customer
         );
-
+        
       if (error) {
         return failure(getErrorMessage(error));
       }
-
+const activityResult =
+      await customerActivityService.create({
+  customer_id: id,
+  type: "updated",
+  title: "Cliente atualizado",
+  description: "Os dados do cliente foram alterados.",
+  metadata: customer,
+});
+console.log("ACTIVITY RESULT", activityResult);
       return success(
         data,
         Messages.CUSTOMER_UPDATED

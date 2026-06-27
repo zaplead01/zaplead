@@ -1,5 +1,5 @@
 import { supabase } from "@/src/lib/supabase/client";
-import { Customer } from "@/src/types/customer";
+import { Customer } from "@/src/types/customer/customer";
 
 class CustomerRepository {
   async list(organizationId: string) {

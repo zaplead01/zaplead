@@ -1,5 +1,5 @@
 import { authRepository } from "@/src/repositories/auth.repository";
-import { ServiceResponse } from "@/src/types/service-response";
+import { ServiceResponse } from "@/src/types/responses/service-response";
 
 class AuthService {
   async register(

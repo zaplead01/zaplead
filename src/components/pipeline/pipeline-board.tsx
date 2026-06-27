@@ -22,10 +22,12 @@ import {
 
 export function PipelineBoard() {
   const {
+    
     pipeline,
     columns,
     loading,
     activeCustomer,
+    updateCustomer,
     handleDragStart,
     handleDragEnd,
   } = useKanban();
@@ -34,6 +36,12 @@ export function PipelineBoard() {
     selectedCustomer,
     setSelectedCustomer,
   ] = useState<Customer | null>(null);
+
+  function handleCustomerUpdated(customer: Customer) {
+  updateCustomer(customer);
+  setSelectedCustomer(customer);
+}
+
 
   if (loading) {
     return (
@@ -55,15 +63,16 @@ export function PipelineBoard() {
 
   return (
     <>
-      <CustomerSheet
-        customer={selectedCustomer}
-        open={!!selectedCustomer}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedCustomer(null);
-          }
-        }}
-      />
+ <CustomerSheet
+  customer={selectedCustomer}
+  open={!!selectedCustomer}
+  updateCustomer={handleCustomerUpdated}
+  onOpenChange={(open) => {
+    if (!open) {
+      setSelectedCustomer(null);
+    }
+  }}
+/>
 
       <DndContext
         onDragStart={handleDragStart}

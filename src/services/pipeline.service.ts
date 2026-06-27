@@ -15,6 +15,7 @@ import { getErrorMessage } from "@/src/utils/get-error-message";
 class PipelineService {
   async list() {
     try {
+      
       const context =
         await currentOrganizationService.get();
 
