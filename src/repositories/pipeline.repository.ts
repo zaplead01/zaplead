@@ -65,6 +65,14 @@ async create(
     .single();
 }
 
+async getStageById(id: string) {
+  return await supabase
+    .from("pipeline_stages")
+    .select("*")
+    .eq("id", id)
+    .single();
+}
+
 }
 
 export const pipelineRepository =

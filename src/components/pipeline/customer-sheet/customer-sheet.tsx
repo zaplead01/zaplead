@@ -12,7 +12,7 @@ import {
   Sheet,
   SheetContent,
 } from "@/src/components/ui/sheet";
-
+import { CustomerFollowUp } from "./customer-follow-up";
 import { CustomerHeader } from "./customer-header";
 import { CustomerKpis } from "./customer-kpis";
 import { CustomerContact } from "./customer-contact";
@@ -25,14 +25,15 @@ type Props = {
   customer: Customer | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  updateCustomer: (customer: Customer) => void;
+  onUpdated?: (customer: Customer) => void;
+  
 };
 
 export function CustomerSheet({
   customer,
   open,
   onOpenChange,
-  updateCustomer,
+  onUpdated,
 }: Props) {
   const [editing, setEditing] = useState(false);
 
@@ -44,12 +45,14 @@ export function CustomerSheet({
     estimated_value: 0,
     lead_source: "",
     notes: "",
+    next_follow_up_at: "",
   });
-
+const [timelineKey, setTimelineKey] = useState(0);
   useEffect(() => {
     if (!customer) return;
 
     setEditing(false);
+    
 
     setForm({
       full_name: customer.full_name,
@@ -59,6 +62,13 @@ export function CustomerSheet({
       estimated_value: customer.estimated_value ?? 0,
       lead_source: customer.lead_source ?? "",
       notes: customer.notes ?? "",
+next_follow_up_at:
+  customer.next_follow_up_at
+    ? new Date(customer.next_follow_up_at)
+        .toISOString()
+        .slice(0, 16)
+    : "",
+
     });
   }, [customer]);
 
@@ -70,17 +80,20 @@ export function CustomerSheet({
       currentCustomer.id,
       form
     );
+    
 
     if (!result.success || !result.data) {
       toast.error(result.message);
       return;
     }
 
-    updateCustomer(result.data);
+    onUpdated?.(result.data);
 
     toast.success(result.message);
 
     setEditing(false);
+
+    setTimelineKey((prev) => prev + 1);
   }
 
   return (
@@ -116,6 +129,13 @@ export function CustomerSheet({
                 setForm={setForm}
               />
 
+              <CustomerFollowUp
+  customer={currentCustomer}
+  editing={editing}
+  form={form}
+  setForm={setForm}
+/>
+
             </div>
 
             {/* Coluna Direita */}
@@ -127,6 +147,7 @@ export function CustomerSheet({
               />
 
 <CustomerTimeline
+  key={timelineKey}
   customerId={currentCustomer.id}
 />
 

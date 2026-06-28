@@ -4,7 +4,7 @@ import {
   DollarSign,
   Target,
   Workflow,
-  UserRound,
+  PhoneCall,
 } from "lucide-react";
 
 import { Customer } from "@/src/types/customer/customer";
@@ -37,6 +37,15 @@ type Props = {
   >;
 };
 
+function formatLastContact(date?: string | null) {
+  if (!date) return "Nunca realizado";
+
+  return new Date(date).toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
 export function CustomerNegotiation({
   customer,
   editing,
@@ -46,12 +55,11 @@ export function CustomerNegotiation({
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader>
-        <CardTitle>
-          Negociação
-        </CardTitle>
+        <CardTitle>Negociação</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3">
+
         <CustomerInfoCard
           icon={<DollarSign size={18} />}
           title="Valor estimado"
@@ -93,7 +101,7 @@ export function CustomerNegotiation({
                 }
               />
             ) : (
-              customer.lead_source ?? "-"
+              customer.lead_source || "-"
             )
           }
         />
@@ -102,16 +110,17 @@ export function CustomerNegotiation({
           icon={<Workflow size={18} />}
           title="Etapa"
           value={
-            customer.pipeline_stage?.name ??
-            "-"
+            customer.pipeline_stage?.name ||
+            "Sem etapa"
           }
         />
 
         <CustomerInfoCard
-          icon={<UserRound size={18} />}
-          title="Responsável"
-          value="-"
+          icon={<PhoneCall size={18} />}
+          title="Último contato"
+          value={formatLastContact(customer.last_contact_at)}
         />
+
       </CardContent>
     </Card>
   );

@@ -32,4 +32,15 @@ export interface Customer {
   created_at: string;
 
   updated_at: string;
+
+  pipeline?: {
+    id: string;
+    name: string;
+  } | null;
+
+  pipeline_stage?: {
+    id: string;
+    name: string;
+    color: string;
+  } | null;
 }

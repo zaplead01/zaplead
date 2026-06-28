@@ -1,7 +1,7 @@
 "use client";
 
 import { useDashboard } from "@/src/hooks/use-dashboard";
-
+import { FollowUpsCard } from "./follow-ups-card";
 import { DashboardHeader } from "./dashboard-header";
 import { DashboardStats } from "./dashboard-stats";
 
@@ -24,11 +24,14 @@ export function DashboardContent() {
     );
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <DashboardHeader dashboard={dashboard} />
+return (
+  <div className="flex flex-col gap-6">
+    <DashboardHeader dashboard={dashboard} />
 
-      <DashboardStats dashboard={dashboard} />
-    </div>
-  );
+    <DashboardStats dashboard={dashboard} />
+
+    <FollowUpsCard />
+  </div>
+
+);
 }
