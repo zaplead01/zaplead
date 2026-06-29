@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import { Task } from "@/src/types/task/task";
 
+import { TaskDialog } from "./task-dialog/task-dialog";
+
 import { useTasks } from "@/src/hooks/use-tasks";
 import { taskService } from "@/src/services/task.service";
 
@@ -84,6 +86,8 @@ export function TasksContent() {
       return due.getTime() === today.getTime();
     });
 
+    
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -91,7 +95,7 @@ export function TasksContent() {
       </div>
     );
   }
-
+  
   return (
     <div className="space-y-8">
 
@@ -110,15 +114,12 @@ export function TasksContent() {
         onOpen={handleOpen}
       />
 
-      {/*
-        Próximo passo:
-        <TaskDialog
-          task={selectedTask}
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          reload={reload}
-        />
-      */}
+      <TaskDialog
+  task={selectedTask}
+  open={dialogOpen}
+  onOpenChange={setDialogOpen}
+  reload={reload}
+/>
 
     </div>
   );

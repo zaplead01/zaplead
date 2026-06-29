@@ -72,11 +72,12 @@ class TaskService {
       }
 
       const { data, error } =
-        await taskRepository.create({
-          ...task,
-          organization_id:
-            membership.organization_id,
-        });
+  await taskRepository.create({
+    ...task,
+    organization_id:
+      membership.organization_id,
+    assigned_to: user.id,
+  });
 
       if (error) {
         return failure(getErrorMessage(error));

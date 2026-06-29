@@ -35,7 +35,7 @@ import {
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/funil", label: "Funil de Vendas", icon: KanbanSquare },
+  { href: "/pipeline", label: "Funil de Vendas", icon: KanbanSquare },
   { href: "/tarefas", label: "Tarefas", icon: CheckSquare },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
 ]

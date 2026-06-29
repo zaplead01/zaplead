@@ -338,6 +338,22 @@ async completeFollowUp(customerId: string) {
   }
 }
 
+async listSimple() {
+  const result = await this.list();
+
+  if (!result.success) {
+    return result;
+  }
+
+  return success(
+    result.data.map(customer => ({
+      id: customer.id,
+      full_name: customer.full_name,
+      company: customer.company,
+    }))
+  );
+}
+
 }
 export const customerService = new CustomerService();
 
