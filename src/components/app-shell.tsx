@@ -17,6 +17,8 @@ import {
   Settings,
 } from "lucide-react"
 
+import { Header } from "@/src/components/app-shell/header";
+
 import { cn } from "@/src/lib/utils"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -36,7 +38,7 @@ const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/pipeline", label: "Funil de Vendas", icon: KanbanSquare },
-  { href: "/tarefas", label: "Tarefas", icon: CheckSquare },
+  { href: "/tasks", label: "Tarefas", icon: CheckSquare },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
 ]
 
@@ -108,6 +110,8 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
 
+  
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar desktop */}
@@ -119,71 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger
-              render={
-                <Button variant="ghost" size="icon" className="lg:hidden" />
-              }
-            >
-              <Menu className="size-5" />
-              <span className="sr-only">Abrir menu</span>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
-              <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
-              <SidebarBody onNavigate={() => setOpen(false)} />
-            </SheetContent>
-          </Sheet>
-
-          <div className="relative hidden max-w-sm flex-1 sm:block">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Buscar clientes, tarefas..."
-              className="pl-9"
-            />
-          </div>
-
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="size-5" />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
-              <span className="sr-only">Notificações</span>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    className="h-10 gap-2 px-2"
-                  />
-                }
-              >
-                <Avatar className="size-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    JS
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden text-sm font-medium sm:block">
-                  João Silva
-                </span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Settings className="size-4" />
-                    Configurações
-                  </DropdownMenuItem>
-                  <DropdownMenuItem render={<Link href="/" />}>
-                    <LogOut className="size-4" />
-                    Sair
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+        <Header />
 
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </div>
