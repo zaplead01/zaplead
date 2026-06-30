@@ -1,10 +1,10 @@
 import { AppShell } from "@/src/components/app-shell";
-import { TasksContent } from "@/src/components/tasks/tasks-content";
+import { ReportsContent } from "@/src/components/reports/reports-content";
 
-export default function TasksPage() {
+export default function ReportsPage() {
   return (
     <AppShell>
-      <TasksContent />
+      <ReportsContent />
     </AppShell>
   );
 }
