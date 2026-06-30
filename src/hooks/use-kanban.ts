@@ -1,74 +1,76 @@
 "use client";
 
 import { useMemo, useState } from "react";
+
 import {
-  DragEndEvent,
   DragStartEvent,
+  DragEndEvent,
+  closestCorners,
 } from "@dnd-kit/core";
 
-import { KanbanColumn } from "@/src/types/pipeline/kanban-column";
+import { pipelineService } from "@/src/services/pipeline.service";
 
 import { usePipeline } from "./use-pipeline";
-import { usePipelineStages } from "./use-pipeline-stages";
-import { useCustomers } from "./use-customers";
 
-import { customerService } from "@/src/services/customer.service";
+import { Customer } from "@/src/types/customer/customer";
+import { KanbanColumn } from "@/src/types/pipeline/kanban-column";
 
 export function useKanban() {
   const {
     pipelines,
-    loading: loadingPipeline,
+    loading,
+    reload,
   } = usePipeline();
 
-  const pipeline = pipelines[0];
+  const [activeCustomerId, setActiveCustomerId] =
+    useState<string | null>(null);
 
-  const {
-    stages,
-    loading: loadingStages,
-  } = usePipelineStages(
-    pipeline?.id ?? ""
-  );
+  const [pipelineState, setPipelineState] =
+    useState(pipelines);
 
-  const {
-    customers,
-    setCustomers,
-    loading: loadingCustomers,
-  } = useCustomers();
+  const pipeline =
+    pipelineState.length > 0
+      ? pipelineState[0]
+      : pipelines[0];
 
-  const [
-    activeCustomerId,
-    setActiveCustomerId,
-  ] = useState<string | null>(null);
+  useMemo(() => {
+    if (pipelines.length) {
+      setPipelineState(pipelines);
+    }
+  }, [pipelines]);
 
-  const columns = useMemo<KanbanColumn[]>(() => {
-    return stages.map((stage) => ({
+  const columns: KanbanColumn[] =
+    pipeline?.stages.map((stage) => ({
       id: stage.id,
       stage,
-      customers: customers.filter(
-        (customer) =>
-          customer.pipeline_stage_id === stage.id
-      ),
-    }));
-  }, [stages, customers]);
+      customers: stage.customers ?? [],
+    })) ?? [];
 
   const activeCustomer =
-    customers.find(
-      (customer) =>
-        customer.id === activeCustomerId
-    ) ?? null;
+    columns
+      .flatMap((column) => column.customers)
+      .find(
+        (customer) =>
+          customer.id === activeCustomerId
+      ) ?? null;
 
-function updateCustomer(updatedCustomer: typeof customers[number]) {
-  setCustomers((previous) =>
-    previous.map((customer) =>
-      customer.id === updatedCustomer.id
-        ? {
-            ...customer,
-            ...updatedCustomer,
-          }
-        : customer
-    )
-  );
-}
+  function updateCustomer(
+    updatedCustomer: Customer
+  ) {
+    setPipelineState((previous) =>
+      previous.map((pipeline) => ({
+        ...pipeline,
+        stages: pipeline.stages.map((stage) => ({
+          ...stage,
+          customers: stage.customers.map((customer) =>
+            customer.id === updatedCustomer.id
+              ? updatedCustomer
+              : customer
+          ),
+        })),
+      }))
+    );
+  }
 
   function handleDragStart(
     event: DragStartEvent
@@ -77,78 +79,94 @@ function updateCustomer(updatedCustomer: typeof customers[number]) {
       event.active.id as string
     );
   }
-  
 
   async function handleDragEnd(
     event: DragEndEvent
   ) {
-    const { active, over } = event;
-
     setActiveCustomerId(null);
+
+    const { active, over } = event;
 
     if (!over) return;
 
     const customerId =
       active.id as string;
 
-    const stageId =
+    const destinationStageId =
       over.id as string;
 
-    const current =
-      customers.find(
-        (customer) =>
-          customer.id === customerId
-      );
+    const previous =
+      structuredClone(pipelineState);
 
-    if (
-      !current ||
-      current.pipeline_stage_id === stageId
-    ) {
-      return;
-    }
+    const next =
+      structuredClone(pipelineState);
 
-    const previousCustomers =
-      customers;
+    let movingCustomer: Customer | null = null;
 
-    setCustomers(
-      customers.map((customer) =>
-        customer.id === customerId
-          ? {
-              ...customer,
-              pipeline_stage_id: stageId,
-            }
-          : customer
-      )
-    );
+    next.forEach((pipeline) => {
+      pipeline.stages.forEach((stage) => {
+        const index =
+          stage.customers.findIndex(
+            (customer) =>
+              customer.id === customerId
+          );
+
+        if (index >= 0) {
+          movingCustomer =
+            stage.customers[index];
+
+          stage.customers.splice(index, 1);
+        }
+      });
+    });
+
+    if (!movingCustomer) return;
+
+    next.forEach((pipeline) => {
+      pipeline.stages.forEach((stage) => {
+        if (stage.id === destinationStageId) {
+          stage.customers.unshift({
+            ...movingCustomer!,
+            pipeline_stage_id:
+              destinationStageId,
+          });
+        }
+      });
+    });
+
+    setPipelineState(next);
 
     const result =
-      await customerService.move(
+      await pipelineService.moveCustomer(
         customerId,
-        stageId
+        destinationStageId
       );
 
     if (!result.success) {
-      setCustomers(previousCustomers);
+      setPipelineState(previous);
       console.error(result.message);
+      return;
     }
+
+    reload();
   }
 
   return {
-updateCustomer,
-
     pipeline,
+
     columns,
 
-    customers,
+    loading,
 
     activeCustomer,
 
-    loading:
-      loadingPipeline ||
-      loadingStages ||
-      loadingCustomers,
+    updateCustomer,
 
     handleDragStart,
+
     handleDragEnd,
+
+    collisionDetection:
+      closestCorners,
   };
 }

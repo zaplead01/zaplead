@@ -2,22 +2,28 @@
 
 import {
   Building2,
-  Phone,
+  GripVertical,
   MessageCircle,
   Pencil,
-  GripVertical,
+  Phone,
 } from "lucide-react";
 
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+
+import {
+  CSS,
+} from "@dnd-kit/utilities";
 
 import { Customer } from "@/src/types/customer/customer";
 
-import { Card } from "@/src/components/ui/card";
 import {
   Avatar,
   AvatarFallback,
 } from "@/src/components/ui/avatar";
+
+import { Card } from "@/src/components/ui/card";
 
 import { getInitials } from "@/src/utils/initials";
 import { formatCurrency } from "@/src/utils/currency";
@@ -44,158 +50,126 @@ export function CustomerCard({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition:
-      transition ??
-      "transform 180ms cubic-bezier(0.2,0,0,1)",
-    opacity: isDragging ? 0 : 1,
+    transition,
   };
 
   return (
-    <Card
+    <div
       ref={setNodeRef}
       style={style}
-      onClick={onClick}
-      className={`
-        group
-        rounded-2xl
-        border
-        bg-card
-        p-4
-
-        cursor-pointer
-
-        transition-all
-        duration-200
-
-        hover:-translate-y-1
-        hover:border-primary
-        hover:shadow-xl
-
-        ${
-          isDragging
-            ? "pointer-events-none"
-            : ""
-        }
-      `}
+      className={
+        isDragging
+          ? "opacity-40"
+          : ""
+      }
     >
-      <div className="flex items-start justify-between">
+      <Card
+        onClick={onClick}
+        className="
+          group
+          rounded-xl
+          border
+          p-4
+          cursor-pointer
+          transition-all
+          hover:border-primary
+          hover:shadow-lg
+        "
+      >
+        <div className="flex justify-between">
 
-        <div className="flex items-start gap-3">
+          <div className="flex gap-3">
 
-          <button
-            {...attributes}
-            {...listeners}
-            onClick={(e) => e.stopPropagation()}
-            className="
-              mt-1
-              cursor-grab
-              rounded-md
-              p-1
-              text-muted-foreground
+            <button
+              {...attributes}
+              {...listeners}
+              onClick={(e) =>
+                e.stopPropagation()
+              }
+              className="
+                mt-1
+                rounded
+                cursor-grab
+                text-muted-foreground
+                hover:text-foreground
+                active:cursor-grabbing
+              "
+            >
+              <GripVertical
+                className="h-4 w-4"
+              />
+            </button>
 
-              transition-colors
+            <Avatar className="h-10 w-10">
+              <AvatarFallback>
+                {getInitials(
+                  customer.full_name
+                )}
+              </AvatarFallback>
+            </Avatar>
 
-              hover:bg-muted
-              hover:text-foreground
+            <div className="min-w-0">
 
-              active:cursor-grabbing
-            "
-          >
-            <GripVertical className="h-4 w-4" />
-          </button>
+              <h4 className="truncate font-medium">
+                {customer.full_name}
+              </h4>
 
-          <Avatar className="h-11 w-11 transition-transform duration-200 group-hover:scale-105">
-            <AvatarFallback className="font-semibold">
-              {getInitials(customer.full_name)}
-            </AvatarFallback>
-          </Avatar>
+              {customer.company && (
+                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span className="truncate">
+                    {customer.company}
+                  </span>
+                </div>
+              )}
 
-          <div className="min-w-0">
-            <h4 className="truncate text-sm font-semibold">
-              {customer.full_name}
-            </h4>
-
-            {customer.company && (
-              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <Building2 className="h-3.5 w-3.5" />
-
-                <span className="truncate">
-                  {customer.company}
-                </span>
-              </div>
-            )}
+            </div>
           </div>
+
+          {customer.estimated_value ? (
+            <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+              {formatCurrency(
+                customer.estimated_value
+              )}
+            </div>
+          ) : null}
         </div>
 
-        {customer.estimated_value ? (
-          <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-            {formatCurrency(
-              customer.estimated_value
-            )}
-          </div>
-        ) : null}
-      </div>
+        <div className="my-4 border-t" />
 
-      <div className="my-4 h-px bg-border" />
+        <div className="flex items-center justify-between">
 
-      <div className="flex items-center justify-between">
-
-        {customer.phone ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Phone className="h-3.5 w-3.5" />
-
-            <span>{customer.phone}</span>
+            <span>
+              {customer.phone ?? "-"}
+            </span>
           </div>
-        ) : (
-          <div />
-        )}
 
-        <div
-          className="
-            flex
-            items-center
-            gap-2
+          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
 
-            opacity-0
-            translate-y-1
+            <button
+              onClick={(e) =>
+                e.stopPropagation()
+              }
+              className="rounded p-2 hover:bg-muted"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </button>
 
-            transition-all
-            duration-200
+            <button
+              onClick={(e) =>
+                e.stopPropagation()
+              }
+              className="rounded p-2 hover:bg-muted"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
 
-            group-hover:opacity-100
-            group-hover:translate-y-0
-          "
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="
-              rounded-lg
-              p-2
-              transition-colors
-              hover:bg-muted
-            "
-          >
-            <MessageCircle className="h-4 w-4" />
-          </button>
+          </div>
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="
-              rounded-lg
-              p-2
-              transition-colors
-              hover:bg-muted
-            "
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
         </div>
-
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }

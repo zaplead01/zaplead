@@ -1,3 +1,5 @@
+import { Customer } from "@/src/types/customer/customer";
+
 export interface PipelineStage {
   id: string;
 
@@ -5,11 +7,17 @@ export interface PipelineStage {
 
   name: string;
 
-  color: string | null;
+  position: number;
 
-  order: number;
+  color: string;
+
+  is_won: boolean;
+
+  is_lost: boolean;
 
   created_at: string;
 
   updated_at: string;
+
+  customers: Customer[];
 }

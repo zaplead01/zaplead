@@ -1,3 +1,5 @@
+import { PipelineStage } from "./pipeline-stage";
+
 export interface Pipeline {
   id: string;
 
@@ -5,11 +7,15 @@ export interface Pipeline {
 
   name: string;
 
-  color: string | null;
+  description: string | null;
 
-  order: number;
+  is_default: boolean;
+
+  is_active: boolean;
 
   created_at: string;
 
   updated_at: string;
+
+  stages: PipelineStage[];
 }

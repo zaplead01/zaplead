@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { reportsService } from "@/src/services/reports.service";
+import { reportsService } from "@/src/services/report-service";
 
 export function useReports() {
   const [reports, setReports] = useState<any>(null);

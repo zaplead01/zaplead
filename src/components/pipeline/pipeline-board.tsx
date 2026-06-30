@@ -4,25 +4,24 @@ import { useState } from "react";
 
 import {
   DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 
+import { Skeleton } from "@/src/components/ui/skeleton";
+
 import { CustomerSheet } from "./customer-sheet/customer-sheet";
-import { KanbanColumn } from "./kanban-column";
 import { CustomerCard } from "./customer-card";
+import { KanbanColumn } from "./kanban-column";
 
 import { useKanban } from "@/src/hooks/use-kanban";
 
 import { Customer } from "@/src/types/customer/customer";
 
-import { Skeleton } from "@/src/components/ui/skeleton";
-
-import {
-  DragOverlay,
-} from "@dnd-kit/core";
-
 export function PipelineBoard() {
   const {
-    
     pipeline,
     columns,
     loading,
@@ -30,6 +29,7 @@ export function PipelineBoard() {
     updateCustomer,
     handleDragStart,
     handleDragEnd,
+    collisionDetection,
   } = useKanban();
 
   const [
@@ -37,48 +37,78 @@ export function PipelineBoard() {
     setSelectedCustomer,
   ] = useState<Customer | null>(null);
 
-  function handleCustomerUpdated(customer: Customer) {
-  updateCustomer(customer);
-  setSelectedCustomer(customer);
-}
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
+  function handleCustomerUpdated(
+    customer: Customer
+  ) {
+    updateCustomer(customer);
+    setSelectedCustomer(customer);
+  }
 
   if (loading) {
     return (
-      <div className="flex gap-4">
-        <Skeleton className="h-[600px] w-80" />
-        <Skeleton className="h-[600px] w-80" />
-        <Skeleton className="h-[600px] w-80" />
+      <div className="flex gap-5">
+        {[1, 2, 3].map((item) => (
+          <Skeleton
+            key={item}
+            className="h-96 w-80 rounded-2xl"
+          />
+        ))}
       </div>
     );
   }
 
   if (!pipeline) {
     return (
-      <p className="text-muted-foreground">
-        Nenhum pipeline encontrado.
-      </p>
+      <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed">
+        <p className="text-muted-foreground">
+          Nenhum pipeline encontrado.
+        </p>
+      </div>
     );
   }
 
   return (
     <>
- <CustomerSheet
-  customer={selectedCustomer}
-  open={!!selectedCustomer}
-  updateCustomer={handleCustomerUpdated}
-  onOpenChange={(open) => {
-    if (!open) {
-      setSelectedCustomer(null);
-    }
-  }}
-/>
+      <CustomerSheet
+        customer={selectedCustomer}
+        open={!!selectedCustomer}
+        updateCustomer={handleCustomerUpdated}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedCustomer(null);
+          }
+        }}
+      />
 
       <DndContext
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+        sensors={sensors}
+        collisionDetection={
+          collisionDetection
+        }
+        onDragStart={
+          handleDragStart
+        }
+        onDragEnd={
+          handleDragEnd
+        }
       >
-        <div className="flex gap-6 overflow-x-auto pb-4">
+        <div
+          className="
+            flex
+            items-start
+            gap-5
+            overflow-x-auto
+            pb-4
+          "
+        >
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -92,7 +122,7 @@ export function PipelineBoard() {
 
         <DragOverlay>
           {activeCustomer ? (
-            <div className="rotate-2 scale-105 opacity-95">
+            <div className="rotate-2 scale-105">
               <CustomerCard
                 customer={activeCustomer}
               />

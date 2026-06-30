@@ -1,9 +1,8 @@
 import { pipelineRepository } from "@/src/repositories/pipeline.repository";
 
-import { currentOrganizationService } from "./current-organization.service";
+import { currentOrganizationService } from "@/src/services/current-organization.service";
 
 import { Pipeline } from "@/src/types/pipeline/pipeline";
-import { PipelineStage } from "@/src/types/pipeline/pipeline-stage";
 
 import {
   success,
@@ -15,16 +14,18 @@ import { getErrorMessage } from "@/src/utils/get-error-message";
 class PipelineService {
   async list() {
     try {
-      
       const context =
         await currentOrganizationService.get();
 
-      if (!context.success) {
-        return context;
+      if (!context.success || !context.data) {
+        return failure(
+          context.message ??
+            "Organização não encontrada."
+        );
       }
 
       const { organizationId } =
-        context.data!;
+        context.data;
 
       const { data, error } =
         await pipelineRepository.list(
@@ -47,13 +48,15 @@ class PipelineService {
     }
   }
 
-  async listStages(
-    pipelineId: string
+  async moveCustomer(
+    customerId: string,
+    stageId: string
   ) {
     try {
-      const { data, error } =
-        await pipelineRepository.listStages(
-          pipelineId
+      const { error } =
+        await pipelineRepository.updateCustomerStage(
+          customerId,
+          stageId
         );
 
       if (error) {
@@ -62,9 +65,7 @@ class PipelineService {
         );
       }
 
-      return success<PipelineStage[]>(
-        data ?? []
-      );
+      return success(true);
     } catch (error) {
       return failure(
         getErrorMessage(error)
