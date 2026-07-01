@@ -12,7 +12,7 @@ import Link from "next/link";
 
 import {
   User,
-  CreditCard,
+  Building2,
 } from "lucide-react";
 
 import {
@@ -122,7 +122,7 @@ export function Header() {
 <DropdownMenuItem
   render={<Link href="/company" />}
 >
-  <CreditCard className="mr-2 h-4 w-4" />
+  <Building2 className="mr-2 h-4 w-4" />
   Empresa
 </DropdownMenuItem>
 
