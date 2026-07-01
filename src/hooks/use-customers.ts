@@ -13,11 +13,10 @@ export function useCustomers() {
   async function load() {
     setLoading(true);
 
-    const result =
-      await customerService.list();
+    const result = await customerService.list();
 
     if (result.success) {
-      setCustomers(result.data);
+      setCustomers(result.data ?? []);
     }
 
     setLoading(false);
@@ -29,6 +28,7 @@ export function useCustomers() {
 
   return {
     customers,
+    setCustomers,
     loading,
     reload: load,
   };

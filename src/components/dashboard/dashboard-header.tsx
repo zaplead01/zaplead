@@ -16,10 +16,13 @@ export function DashboardHeader({ dashboard }: Props) {
       title={`Olá, ${dashboard.userName}!`}
       description={`${dashboard.organizationName} • Plano ${dashboard.plan}`}
     >
-      <Button render={<Link href="/clientes/novo" />}>
-        <UserPlus className="size-4" />
-        Novo Cliente
-      </Button>
+      <Button
+  nativeButton={false}
+  render={<Link href="/clientes/novo" />}
+>
+  <UserPlus className="size-4" />
+  Novo Cliente
+</Button>
     </PageHeader>
   );
 }

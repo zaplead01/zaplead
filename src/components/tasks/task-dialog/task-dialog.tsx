@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Task } from "@/src/types/task/task";
-
 import { taskService } from "@/src/services/task.service";
 
 import {
@@ -13,6 +12,11 @@ import {
 } from "@/src/components/ui/sheet";
 
 import { TaskForm } from "./task-form";
+
+import {
+  toUTC,
+  fromUTC,
+} from "@/src/utils/date";
 
 type Props = {
   task: Task | null;
@@ -56,7 +60,7 @@ export function TaskDialog({
       customer_id: task.customer_id ?? "",
       priority: task.priority,
       due_date: task.due_date
-        ? task.due_date.slice(0, 16)
+        ? fromUTC(task.due_date)
         : "",
     });
   }, [task]);
@@ -64,16 +68,17 @@ export function TaskDialog({
   async function handleSave() {
     setLoading(true);
 
-    let result;
+    const payload = {
+      ...form,
+      customer_id: form.customer_id || null,
+      due_date: form.due_date
+        ? toUTC(form.due_date)
+        : null,
+    };
 
-    if (task) {
-      result = await taskService.update(
-        task.id,
-        form
-      );
-    } else {
-      result = await taskService.create(form);
-    }
+    const result = task
+      ? await taskService.update(task.id, payload)
+      : await taskService.create(payload);
 
     setLoading(false);
 
@@ -85,35 +90,36 @@ export function TaskDialog({
     toast.success(result.message);
 
     reload();
-
     onOpenChange(false);
   }
 
   return (
     <Sheet
-  open={open}
-  onOpenChange={onOpenChange}
->
-  <SheetContent
-    side="right"
-    className="
-      w-full
-      sm:max-w-[520px]
-      md:max-w-[560px]
-      lg:max-w-[620px]
-      p-0
-      overflow-hidden
-    "
-  >
-    <TaskForm
-      editing={!!task}
-      form={form}
-      setForm={setForm}
-      loading={loading}
-      onSave={handleSave}
-      onCancel={() => onOpenChange(false)}
-    />
-  </SheetContent>
-</Sheet>
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <SheetContent
+        side="right"
+        className="
+          w-full
+          sm:max-w-[520px]
+          md:max-w-[560px]
+          lg:max-w-[620px]
+          p-0
+          overflow-hidden
+        "
+      >
+        <TaskForm
+          editing={!!task}
+          loading={loading}
+          form={form}
+          setForm={setForm}
+          onSave={handleSave}
+          onCancel={() => onOpenChange(false)}
+        />
+
+        
+      </SheetContent>
+    </Sheet>
   );
 }

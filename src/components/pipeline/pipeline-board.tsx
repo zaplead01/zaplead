@@ -28,19 +28,17 @@ export function PipelineBoard() {
     activeCustomer,
     updateCustomer,
     handleDragStart,
+    handleDragOver,
     handleDragEnd,
-    collisionDetection,
   } = useKanban();
 
-  const [
-    selectedCustomer,
-    setSelectedCustomer,
-  ] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<Customer | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
       },
     })
   );
@@ -90,15 +88,9 @@ export function PipelineBoard() {
 
       <DndContext
         sensors={sensors}
-        collisionDetection={
-          collisionDetection
-        }
-        onDragStart={
-          handleDragStart
-        }
-        onDragEnd={
-          handleDragEnd
-        }
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
       >
         <div
           className="

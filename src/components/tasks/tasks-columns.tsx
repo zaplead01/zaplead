@@ -3,7 +3,7 @@
 import {
   AlertCircle,
   Calendar,
-  CheckCircle2,
+  Clock3,
 } from "lucide-react";
 
 import { Task } from "@/src/types/task/task";
@@ -21,36 +21,34 @@ export function TasksColumns({
   onComplete,
   onOpen,
 }: Props) {
-  const today = new Date();
+  const todayString =
+    new Date().toISOString().split("T")[0];
 
-  today.setHours(0, 0, 0, 0);
-
-  const pending = tasks.filter(
-    (task) => task.status === "pending"
-  );
-
-  const completed = tasks.filter(
-    (task) => task.status === "completed"
-  );
-
-  const overdue = pending.filter((task) => {
+  const overdue = tasks.filter((task) => {
     if (!task.due_date) return false;
 
-    const due = new Date(task.due_date);
-
-    due.setHours(0, 0, 0, 0);
-
-    return due < today;
+    return (
+      task.due_date.split("T")[0] <
+      todayString
+    );
   });
 
-  const todayTasks = pending.filter((task) => {
+  const todayTasks = tasks.filter((task) => {
     if (!task.due_date) return false;
 
-    const due = new Date(task.due_date);
+    return (
+      task.due_date.split("T")[0] ===
+      todayString
+    );
+  });
 
-    due.setHours(0, 0, 0, 0);
+  const upcoming = tasks.filter((task) => {
+    if (!task.due_date) return true;
 
-    return due.getTime() === today.getTime();
+    return (
+      task.due_date.split("T")[0] >
+      todayString
+    );
   });
 
   return (
@@ -77,11 +75,11 @@ export function TasksColumns({
       />
 
       <TaskList
-        title="Concluídas"
+        title="Próximas"
         icon={
-          <CheckCircle2 className="text-green-600" />
+          <Clock3 className="text-blue-600" />
         }
-        tasks={completed}
+        tasks={upcoming}
         onComplete={onComplete}
         onOpen={onOpen}
       />

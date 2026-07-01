@@ -20,7 +20,11 @@ type Props = {
   overdue: number;
   completed: number;
 
+  search: string;
+  onSearchChange: (value: string) => void;
+
   onNewTask: () => void;
+  onCompletedClick: () => void;
 };
 
 export function TasksHeader({
@@ -29,7 +33,10 @@ export function TasksHeader({
   today,
   overdue,
   completed,
+  search,
+  onSearchChange,
   onNewTask,
+  onCompletedClick,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -65,11 +72,9 @@ export function TasksHeader({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
 
         <Card className="p-5">
-
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-sm text-muted-foreground">
                 Total
               </p>
@@ -77,7 +82,6 @@ export function TasksHeader({
               <h2 className="mt-2 text-3xl font-bold">
                 {total}
               </h2>
-
             </div>
 
             <CalendarDays
@@ -86,15 +90,12 @@ export function TasksHeader({
             />
 
           </div>
-
         </Card>
 
         <Card className="p-5">
-
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-sm text-muted-foreground">
                 Pendentes
               </p>
@@ -102,7 +103,6 @@ export function TasksHeader({
               <h2 className="mt-2 text-3xl font-bold">
                 {pending}
               </h2>
-
             </div>
 
             <Clock3
@@ -111,15 +111,12 @@ export function TasksHeader({
             />
 
           </div>
-
         </Card>
 
         <Card className="p-5">
-
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-sm text-muted-foreground">
                 Hoje
               </p>
@@ -127,7 +124,6 @@ export function TasksHeader({
               <h2 className="mt-2 text-3xl font-bold">
                 {today}
               </h2>
-
             </div>
 
             <CalendarDays
@@ -136,15 +132,12 @@ export function TasksHeader({
             />
 
           </div>
-
         </Card>
 
         <Card className="p-5">
-
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-sm text-muted-foreground">
                 Atrasadas
               </p>
@@ -152,7 +145,6 @@ export function TasksHeader({
               <h2 className="mt-2 text-3xl font-bold text-red-600">
                 {overdue}
               </h2>
-
             </div>
 
             <TriangleAlert
@@ -161,15 +153,12 @@ export function TasksHeader({
             />
 
           </div>
-
         </Card>
 
         <Card className="p-5">
-
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-sm text-muted-foreground">
                 Concluídas
               </p>
@@ -177,7 +166,6 @@ export function TasksHeader({
               <h2 className="mt-2 text-3xl font-bold text-green-600">
                 {completed}
               </h2>
-
             </div>
 
             <CircleCheckBig
@@ -186,7 +174,6 @@ export function TasksHeader({
             />
 
           </div>
-
         </Card>
 
       </div>
@@ -198,16 +185,36 @@ export function TasksHeader({
         <div className="relative flex-1">
 
           <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            className="
+              absolute
+              left-3
+              top-1/2
+              h-4
+              w-4
+              -translate-y-1/2
+              text-muted-foreground
+            "
           />
 
           <Input
-            placeholder="Buscar tarefas..."
-            className="pl-10"
+            value={search}
+            onChange={(e) =>
+              onSearchChange(e.target.value)
+            }
+            placeholder="Pesquisar por título, descrição ou cliente..."
+            className="pl-10 h-11"
           />
 
         </div>
+
+        <Button
+          variant="outline"
+          className="h-11 px-6"
+          onClick={onCompletedClick}
+        >
+          <CircleCheckBig className="mr-2 h-4 w-4" />
+          Concluídas ({completed})
+        </Button>
 
       </div>
 

@@ -12,10 +12,13 @@ export default function ClientesPage() {
         title="Clientes"
         description="Gerencie todos os seus contatos e leads."
       >
-        <Button render={<Link href="/clientes/novo" />}>
-          <UserPlus className="size-4" />
-          Novo Cliente
-        </Button>
+        <Button
+  nativeButton={false}
+  render={<Link href="/clientes/novo" />}
+>
+  <UserPlus className="size-4" />
+  Novo Cliente
+</Button>
       </PageHeader>
       <CustomersTable />
     </div>

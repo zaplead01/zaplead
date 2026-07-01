@@ -17,19 +17,15 @@ class TaskRepository {
       .order("due_date");
   }
 
-  async create(task: Omit<Task, "id" | "created_at" | "updated_at">) {
-  console.log("ENVIANDO TASK:", task);
-
-  const response = await supabase
-    .from("tasks")
-    .insert(task)
-    .select()
-    .single();
-
-  console.log("RESPOSTA:", response);
-
-  return response;
-}
+  async create(
+    task: Omit<Task, "id" | "created_at" | "updated_at">
+  ) {
+    return await supabase
+      .from("tasks")
+      .insert(task)
+      .select()
+      .single();
+  }
 
   async update(
     id: string,
@@ -63,5 +59,4 @@ class TaskRepository {
   }
 }
 
-export const taskRepository =
-  new TaskRepository();
+export const taskRepository = new TaskRepository();

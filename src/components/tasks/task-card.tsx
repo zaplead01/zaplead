@@ -14,16 +14,20 @@ import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 
+import { formatDateTime } from "@/src/utils/date";
+
 type Props = {
   task: Task;
   onComplete: (id: string) => void;
   onOpen?: (task: Task) => void;
+  hideCompleteButton?: boolean;
 };
 
 export function TaskCard({
   task,
   onComplete,
   onOpen,
+  hideCompleteButton = false,
 }: Props) {
   function priorityBadge() {
     switch (task.priority) {
@@ -57,66 +61,47 @@ export function TaskCard({
     }
   }
 
-  function formatDate(date: string | null) {
-    if (!date) return "Sem prazo";
-
-    return new Date(date).toLocaleString(
-      "pt-BR",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
-  }
-
   return (
     <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
-
       <div className="space-y-5 p-5">
 
+        {/* Header */}
         <div className="flex items-center justify-between">
-
           {priorityBadge()}
 
           <Calendar
             size={18}
             className="text-muted-foreground"
           />
-
         </div>
 
+        {/* Conteúdo */}
         <div>
-
-          <h3 className="font-semibold text-base">
+          <h3 className="text-base font-semibold">
             {task.title}
           </h3>
 
-          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
             {task.description || "Sem descrição"}
           </p>
-
         </div>
 
+        {/* Informações */}
         <div className="space-y-3 text-sm">
 
           <div className="flex items-center gap-2">
-
             <Clock3
               size={15}
               className="text-muted-foreground"
             />
 
             <span>
-              {formatDate(task.due_date)}
+              {formatDateTime(task.due_date)}
             </span>
-
           </div>
 
           {task.customer && (
             <div className="flex items-center gap-2">
-
               <FolderOpen
                 size={15}
                 className="text-muted-foreground"
@@ -125,13 +110,11 @@ export function TaskCard({
               <span>
                 {task.customer.full_name}
               </span>
-
             </div>
           )}
 
           {task.customer?.estimated_value && (
             <div className="flex items-center gap-2">
-
               <DollarSign
                 size={15}
                 className="text-muted-foreground"
@@ -146,12 +129,12 @@ export function TaskCard({
                   }
                 )}
               </span>
-
             </div>
           )}
 
         </div>
 
+        {/* Botões */}
         <div className="flex gap-2">
 
           <Button
@@ -163,17 +146,18 @@ export function TaskCard({
             Abrir
           </Button>
 
-          <Button
-            onClick={() => onComplete(task.id)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-          </Button>
+          {!hideCompleteButton && (
+            <Button
+              onClick={() => onComplete(task.id)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+            </Button>
+          )}
 
         </div>
 
       </div>
-
     </Card>
   );
 }

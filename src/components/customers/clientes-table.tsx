@@ -10,6 +10,8 @@ import {
   Mail,
 } from "lucide-react";
 
+import { formatPhone } from "@/src/utils/phone";
+
 import { useCustomers } from "@/src/hooks/use-customers";
 
 import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
@@ -179,7 +181,7 @@ export function CustomersTable() {
                   <TableCell>
                     <span className="flex items-center gap-2 text-muted-foreground">
                       <Phone className="size-4" />
-                      {customer.phone ?? "—"}
+                      {formatPhone(customer.phone)}
                     </span>
                   </TableCell>
 

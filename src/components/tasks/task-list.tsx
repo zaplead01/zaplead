@@ -12,6 +12,7 @@ type Props = {
   tasks: Task[];
   onComplete: (id: string) => void;
   onOpen?: (task: Task) => void;
+  hideCompleteButton?: boolean;
 };
 
 export function TaskList({
@@ -20,22 +21,20 @@ export function TaskList({
   tasks,
   onComplete,
   onOpen,
+  hideCompleteButton = false,
 }: Props) {
   return (
     <div className="flex flex-col rounded-2xl border bg-card shadow-sm">
 
       {/* Header */}
-
       <div className="flex items-center justify-between border-b p-5">
 
         <div className="flex items-center gap-2">
-
           {icon}
 
           <h2 className="text-lg font-semibold">
             {title}
           </h2>
-
         </div>
 
         <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
@@ -45,12 +44,11 @@ export function TaskList({
       </div>
 
       {/* Lista */}
-
       <div className="flex flex-col gap-4 p-4">
 
         {tasks.length === 0 ? (
           <div className="rounded-xl border border-dashed py-10 text-center text-sm text-muted-foreground">
-            Nenhuma tarefa.
+            Nenhuma tarefa encontrada.
           </div>
         ) : (
           tasks.map((task) => (
@@ -59,6 +57,7 @@ export function TaskList({
               task={task}
               onComplete={onComplete}
               onOpen={onOpen}
+              hideCompleteButton={hideCompleteButton}
             />
           ))
         )}

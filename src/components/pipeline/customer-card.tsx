@@ -8,10 +8,12 @@ import {
   Phone,
 } from "lucide-react";
 
+import { formatPhone } from "@/src/utils/phone";
+
 import {
   useSortable,
 } from "@dnd-kit/sortable";
-
+import { FaWhatsapp } from "react-icons/fa";
 import {
   CSS,
 } from "@dnd-kit/utilities";
@@ -52,6 +54,11 @@ export function CustomerCard({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const whatsappUrl = customer.phone
+  ? `https://wa.me/${customer.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+      `Olá ${customer.full_name}, tudo bem?`
+    )}`
+  : null;
 
   return (
     <div
@@ -142,31 +149,33 @@ export function CustomerCard({
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Phone className="h-3.5 w-3.5" />
             <span>
-              {customer.phone ?? "-"}
-            </span>
+  {formatPhone(customer.phone)}
+</span>
           </div>
 
-          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-
-            <button
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-              className="rounded p-2 hover:bg-muted"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </button>
-
-            <button
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-              className="rounded p-2 hover:bg-muted"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-
-          </div>
+          {whatsappUrl && (
+  <a
+    href={whatsappUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={(e) => e.stopPropagation()}
+    className="
+      flex
+      h-9
+      w-9
+      items-center
+      justify-center
+      rounded-full
+      bg-green-500
+      text-white
+      transition-all
+      hover:scale-110
+      hover:bg-green-600
+    "
+  >
+    <FaWhatsapp className="h-5 w-5" />
+  </a>
+)}
 
         </div>
       </Card>

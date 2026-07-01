@@ -7,6 +7,8 @@ import { getErrorMessage } from "@/src/utils/get-error-message";
 import { Errors } from "@/src/constants/errors";
 import { Messages } from "@/src/constants/messages";
 
+import { supabase } from "@/src/lib/supabase/client";
+
 import { Task } from "@/src/types/task/task";
 
 class TaskService {
@@ -70,8 +72,25 @@ class TaskService {
           Errors.ORGANIZATION_NOT_FOUND
         );
       }
+console.log("USER", user.id);
+
+console.log("MEMBERSHIP", membership);
+
+console.log("TASK", {
+  ...task,
+  organization_id: membership.organization_id,
+  assigned_to: user.id,
+});
+
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+console.log("SESSION", session);
+
 
       const { data, error } =
+      
   await taskRepository.create({
     ...task,
     organization_id:

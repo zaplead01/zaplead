@@ -93,10 +93,11 @@ export function Header() {
   </div>
 </DropdownMenuTrigger>
 
-  <DropdownMenuContent
-    align="end"
-    className="w-60"
-  >
+ <DropdownMenuContent
+  align="end"
+  className="w-60"
+>
+  <DropdownMenuGroup>
     <DropdownMenuLabel>
       <div className="flex flex-col">
         <span className="font-medium">{fullName}</span>
@@ -108,10 +109,7 @@ export function Header() {
 
     <DropdownMenuSeparator />
 
-    <DropdownMenuItem>
-      <Settings className="mr-2 h-4 w-4" />
-      Configurações
-    </DropdownMenuItem>
+    
 
     <DropdownMenuItem>
       <User className="mr-2 h-4 w-4" />
@@ -123,6 +121,11 @@ export function Header() {
       Assinatura
     </DropdownMenuItem>
 
+    <DropdownMenuItem>
+      <Settings className="mr-2 h-4 w-4" />
+      Configurações
+    </DropdownMenuItem>
+
     <DropdownMenuSeparator />
 
     <DropdownMenuItem
@@ -132,7 +135,8 @@ export function Header() {
       <LogOut className="mr-2 h-4 w-4" />
       Sair
     </DropdownMenuItem>
-  </DropdownMenuContent>
+  </DropdownMenuGroup>
+</DropdownMenuContent>
 </DropdownMenu>
 
       </div>

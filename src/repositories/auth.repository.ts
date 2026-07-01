@@ -39,6 +39,12 @@ class AuthRepository {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
     });
   }
+
+  async updatePassword(password: string) {
+  return await supabase.auth.updateUser({
+    password,
+  });
+}
 }
 
 export const authRepository = new AuthRepository();

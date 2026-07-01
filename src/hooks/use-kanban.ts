@@ -1,15 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   DragStartEvent,
+  DragOverEvent,
   DragEndEvent,
-  closestCorners,
+  closestCenter,
 } from "@dnd-kit/core";
 
-import { pipelineService } from "@/src/services/pipeline.service";
+import {
+  arrayMove,
+} from "@dnd-kit/sortable";
 
+import { pipelineService } from "@/src/services/pipeline.service";
 import { usePipeline } from "./use-pipeline";
 
 import { Customer } from "@/src/types/customer/customer";
@@ -19,32 +27,33 @@ export function useKanban() {
   const {
     pipelines,
     loading,
-    reload,
   } = usePipeline();
-
-  const [activeCustomerId, setActiveCustomerId] =
-    useState<string | null>(null);
 
   const [pipelineState, setPipelineState] =
     useState(pipelines);
 
-  const pipeline =
-    pipelineState.length > 0
-      ? pipelineState[0]
-      : pipelines[0];
+  const [activeCustomerId, setActiveCustomerId] =
+    useState<string | null>(null);
 
-  useMemo(() => {
+  useEffect(() => {
     if (pipelines.length) {
       setPipelineState(pipelines);
     }
   }, [pipelines]);
 
+  const pipeline =
+    pipelineState[0];
+
   const columns: KanbanColumn[] =
-    pipeline?.stages.map((stage) => ({
-      id: stage.id,
-      stage,
-      customers: stage.customers ?? [],
-    })) ?? [];
+    useMemo(() => {
+      if (!pipeline) return [];
+
+      return pipeline.stages.map((stage) => ({
+        id: stage.id,
+        stage,
+        customers: stage.customers ?? [],
+      }));
+    }, [pipeline]);
 
   const activeCustomer =
     columns
@@ -72,12 +81,106 @@ export function useKanban() {
     );
   }
 
+  function findStage(
+    customerId: string
+  ) {
+    return columns.find((column) =>
+      column.customers.some(
+        (customer) =>
+          customer.id === customerId
+      )
+    );
+  }
+
   function handleDragStart(
     event: DragStartEvent
   ) {
     setActiveCustomerId(
       event.active.id as string
     );
+  }
+    function handleDragOver(
+    event: DragOverEvent
+  ) {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const sourceColumn =
+      findStage(activeId);
+
+    if (!sourceColumn) return;
+
+    let destinationColumn =
+      columns.find(
+        (column) => column.stage.id === overId
+      );
+
+    if (!destinationColumn) {
+      destinationColumn =
+        findStage(overId);
+    }
+
+    if (!destinationColumn) return;
+
+    if (
+      sourceColumn.stage.id ===
+      destinationColumn.stage.id
+    ) {
+      return;
+    }
+
+    setPipelineState((previous) => {
+      const next =
+        structuredClone(previous);
+
+      const pipeline =
+        next[0];
+
+      const source =
+        pipeline.stages.find(
+          (stage) =>
+            stage.id === sourceColumn.stage.id
+        );
+
+      const destination =
+        pipeline.stages.find(
+          (stage) =>
+            stage.id ===
+            destinationColumn.stage.id
+        );
+
+      if (!source || !destination) {
+        return previous;
+      }
+
+      const index =
+        source.customers.findIndex(
+          (customer) =>
+            customer.id === activeId
+        );
+
+      if (index === -1) {
+        return previous;
+      }
+
+      const [customer] =
+        source.customers.splice(
+          index,
+          1
+        );
+
+      destination.customers.unshift({
+        ...customer,
+        pipeline_stage_id:
+          destination.id,
+      });
+
+      return next;
+    });
   }
 
   async function handleDragEnd(
@@ -89,66 +192,106 @@ export function useKanban() {
 
     if (!over) return;
 
-    const customerId =
+    const activeId =
       active.id as string;
 
-    const destinationStageId =
+    const overId =
       over.id as string;
 
-    const previous =
-      structuredClone(pipelineState);
+    const sourceColumn =
+      findStage(activeId);
 
-    const next =
-      structuredClone(pipelineState);
+    if (!sourceColumn) return;
 
-    let movingCustomer: Customer | null = null;
-
-    next.forEach((pipeline) => {
-      pipeline.stages.forEach((stage) => {
-        const index =
-          stage.customers.findIndex(
-            (customer) =>
-              customer.id === customerId
-          );
-
-        if (index >= 0) {
-          movingCustomer =
-            stage.customers[index];
-
-          stage.customers.splice(index, 1);
-        }
-      });
-    });
-
-    if (!movingCustomer) return;
-
-    next.forEach((pipeline) => {
-      pipeline.stages.forEach((stage) => {
-        if (stage.id === destinationStageId) {
-          stage.customers.unshift({
-            ...movingCustomer!,
-            pipeline_stage_id:
-              destinationStageId,
-          });
-        }
-      });
-    });
-
-    setPipelineState(next);
-
-    const result =
-      await pipelineService.moveCustomer(
-        customerId,
-        destinationStageId
+    let destinationColumn =
+      columns.find(
+        (column) => column.stage.id === overId
       );
 
-    if (!result.success) {
-      setPipelineState(previous);
-      console.error(result.message);
+    if (!destinationColumn) {
+      destinationColumn =
+        findStage(overId);
+    }
+
+    if (!destinationColumn) return;
+
+    const previousStageId =
+      sourceColumn.stage.id;
+
+    const newStageId =
+      destinationColumn.stage.id;
+
+    if (
+      previousStageId === newStageId
+    ) {
+      setPipelineState((previous) => {
+        const next =
+          structuredClone(previous);
+
+        const customers =
+          next[0].stages.find(
+            (stage) =>
+              stage.id === previousStageId
+          )!.customers;
+
+        const oldIndex =
+          customers.findIndex(
+            (customer) =>
+              customer.id === activeId
+          );
+
+        const newIndex =
+          customers.findIndex(
+            (customer) =>
+              customer.id === overId
+          );
+
+        if (
+          oldIndex === -1 ||
+          newIndex === -1
+        ) {
+          return previous;
+        }
+
+        next[0].stages.find(
+          (stage) =>
+            stage.id === previousStageId
+        )!.customers =
+          arrayMove(
+            customers,
+            oldIndex,
+            newIndex
+          );
+
+        return next;
+      });
+
       return;
     }
 
-    reload();
+    const result =
+      await pipelineService.moveCustomer(
+        activeId,
+        newStageId
+      );
+
+    if (!result.success) {
+      console.error(
+        result.message
+      );
+
+      const fresh =
+        await pipelineService.list();
+
+      if (
+        fresh.success &&
+        fresh.data
+      ) {
+        setPipelineState(
+          fresh.data
+        );
+      }
+    }
   }
 
   return {
@@ -164,9 +307,11 @@ export function useKanban() {
 
     handleDragStart,
 
+    handleDragOver,
+
     handleDragEnd,
 
     collisionDetection:
-      closestCorners,
+      closestCenter,
   };
 }

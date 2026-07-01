@@ -89,10 +89,67 @@ export function useAuth() {
     router.replace("/login");
   }
 
-  return {
-    loading,
-    login,
-    register,
-    logout,
-  };
+  async function forgotPassword(email: string) {
+  setLoading(true);
+
+  try {
+    const result = await authService.forgotPassword(email);
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "E-mail enviado com sucesso.",
+    };
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function updatePassword(password: string) {
+  setLoading(true);
+
+  try {
+    const result = await authService.updatePassword(password);
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar senha.",
+    };
+  } finally {
+    setLoading(false);
+  }
+}
+
+return {
+  loading,
+  login,
+  register,
+  logout,
+  forgotPassword,
+  updatePassword,
+};
+
+
+
 }

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Task } from "@/src/types/task/task";
 
-import { TaskDialog } from "./task-dialog/task-dialog";
-
 import { useTasks } from "@/src/hooks/use-tasks";
 import { taskService } from "@/src/services/task.service";
 
+import { TaskDialog } from "./task-dialog/task-dialog";
 import { TasksHeader } from "./tasks-header";
 import { TasksColumns } from "./tasks-columns";
+import { CompletedTasksDialog } from "./completed-tasks-dialog";
 
 export function TasksContent() {
   const {
@@ -25,6 +25,12 @@ export function TasksContent() {
 
   const [dialogOpen, setDialogOpen] =
     useState(false);
+
+  const [completedOpen, setCompletedOpen] =
+    useState(false);
+
+  const [search, setSearch] =
+    useState("");
 
   async function handleComplete(id: string) {
     const result =
@@ -50,43 +56,56 @@ export function TasksContent() {
     setDialogOpen(true);
   }
 
+  const filteredTasks = useMemo(() => {
+    if (!search.trim()) return tasks;
+
+    const value = search.toLowerCase();
+
+    return tasks.filter((task) => {
+      return (
+        task.title.toLowerCase().includes(value) ||
+        task.description
+          ?.toLowerCase()
+          .includes(value) ||
+        task.customer?.full_name
+          ?.toLowerCase()
+          .includes(value)
+      );
+    });
+  }, [tasks, search]);
+
   const pending =
-    tasks.filter(
-      task => task.status === "pending"
+    filteredTasks.filter(
+      (task) => task.status === "pending"
     );
 
   const completed =
-    tasks.filter(
-      task => task.status === "completed"
+    filteredTasks.filter(
+      (task) => task.status === "completed"
     );
 
-  const today = new Date();
-
-  today.setHours(0, 0, 0, 0);
+  const todayString =
+    new Date().toISOString().split("T")[0];
 
   const overdue =
-    pending.filter(task => {
+    pending.filter((task) => {
       if (!task.due_date) return false;
 
-      const due = new Date(task.due_date);
-
-      due.setHours(0, 0, 0, 0);
-
-      return due < today;
+      return (
+        task.due_date.split("T")[0] <
+        todayString
+      );
     });
 
   const todayTasks =
-    pending.filter(task => {
+    pending.filter((task) => {
       if (!task.due_date) return false;
 
-      const due = new Date(task.due_date);
-
-      due.setHours(0, 0, 0, 0);
-
-      return due.getTime() === today.getTime();
+      return (
+        task.due_date.split("T")[0] ===
+        todayString
+      );
     });
-
-    
 
   if (loading) {
     return (
@@ -95,31 +114,41 @@ export function TasksContent() {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-8">
 
       <TasksHeader
-        total={tasks.length}
-        pending={pending.length}
-        today={todayTasks.length}
-        overdue={overdue.length}
-        completed={completed.length}
-        onNewTask={handleNewTask}
-      />
+  total={tasks.length}
+  pending={pending.length}
+  today={todayTasks.length}
+  overdue={overdue.length}
+  completed={completed.length}
+  search={search}
+  onSearchChange={setSearch}
+  onNewTask={handleNewTask}
+  onCompletedClick={() => setCompletedOpen(true)}
+/>
 
       <TasksColumns
-        tasks={tasks}
+        tasks={pending}
         onComplete={handleComplete}
         onOpen={handleOpen}
       />
 
+      <CompletedTasksDialog
+        open={completedOpen}
+        onOpenChange={setCompletedOpen}
+        tasks={completed}
+        onOpen={handleOpen}
+      />
+
       <TaskDialog
-  task={selectedTask}
-  open={dialogOpen}
-  onOpenChange={setDialogOpen}
-  reload={reload}
-/>
+        task={selectedTask}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        reload={reload}
+      />
 
     </div>
   );

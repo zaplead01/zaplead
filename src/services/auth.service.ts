@@ -86,6 +86,26 @@ class AuthService {
       message: "Email de recuperação enviado.",
     };
   }
+
+  async updatePassword(
+  password: string
+): Promise<ServiceResponse> {
+  const { error } =
+    await authRepository.updatePassword(password);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Senha atualizada com sucesso.",
+  };
+}
+
 }
 
 export const authService = new AuthService();

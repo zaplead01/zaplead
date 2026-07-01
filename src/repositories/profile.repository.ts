@@ -33,6 +33,22 @@ class ProfileRepository {
       .select()
       .single();
   }
+
+  async getCurrent() {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return {
+      data: null,
+      error,
+    };
+  }
+
+  return this.getById(user.id);
+}
 }
 
 export const profileRepository = new ProfileRepository();
