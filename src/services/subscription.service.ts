@@ -22,6 +22,19 @@ class SubscriptionService {
 
     return subscription;
   }
+
+  async getCurrent(organizationId: string) {
+    const { data, error } =
+      await subscriptionRepository.getCurrent(
+        organizationId
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }
 
 export const subscriptionService =

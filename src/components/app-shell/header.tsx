@@ -8,6 +8,7 @@ import { useAuth } from "@/src/hooks/use-auth";
 
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import Link from "next/link";
 
 import {
   User,
@@ -111,20 +112,26 @@ export function Header() {
 
     
 
-    <DropdownMenuItem>
-      <User className="mr-2 h-4 w-4" />
-      Meu Perfil
-    </DropdownMenuItem>
+    <DropdownMenuItem
+  render={<Link href="/profile" />}
+>
+  <User className="mr-2 h-4 w-4" />
+  Meu Perfil
+</DropdownMenuItem>
 
-    <DropdownMenuItem>
-      <CreditCard className="mr-2 h-4 w-4" />
-      Assinatura
-    </DropdownMenuItem>
+<DropdownMenuItem
+  render={<Link href="/company" />}
+>
+  <CreditCard className="mr-2 h-4 w-4" />
+  Empresa
+</DropdownMenuItem>
 
-    <DropdownMenuItem>
-      <Settings className="mr-2 h-4 w-4" />
-      Configurações
-    </DropdownMenuItem>
+<DropdownMenuItem
+  render={<Link href="/settings" />}
+>
+  <Settings className="mr-2 h-4 w-4" />
+  Configurações
+</DropdownMenuItem>
 
     <DropdownMenuSeparator />
 

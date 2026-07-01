@@ -1,4 +1,5 @@
 import { supabase } from "@/src/lib/supabase/client";
+import { organizationUserRepository } from "./organization-user.repository";
 
 class OrganizationRepository {
   async getById(id: string) {
@@ -7,6 +8,20 @@ class OrganizationRepository {
       .select("*")
       .eq("id", id)
       .maybeSingle();
+  }
+
+  async getCurrentByUser(userId: string) {
+    const { data: membership, error } =
+      await organizationUserRepository.getByUser(userId);
+
+    if (error || !membership) {
+      return {
+        data: null,
+        error,
+      };
+    }
+
+    return this.getById(membership.organization_id);
   }
 
   async create(data: {
@@ -28,4 +43,5 @@ class OrganizationRepository {
   }
 }
 
-export const organizationRepository = new OrganizationRepository();
+export const organizationRepository =
+  new OrganizationRepository();

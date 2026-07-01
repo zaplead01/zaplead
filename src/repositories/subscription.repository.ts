@@ -20,6 +20,17 @@ class SubscriptionRepository {
       .select()
       .single();
   }
+
+ async getCurrent(organizationId: string) {
+  return await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .single();
+}
+
+
+
 }
 
 export const subscriptionRepository =
