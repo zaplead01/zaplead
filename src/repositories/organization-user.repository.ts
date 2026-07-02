@@ -20,6 +20,37 @@ class OrganizationUserRepository {
       .select()
       .single();
   }
+
+  async updateRole(
+  id: string,
+  role: "admin" | "member"
+) {
+  return await supabase
+    .from("organization_users")
+    .update({
+      role,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+}
+
+async delete(id: string) {
+  return await supabase
+    .from("organization_users")
+    .delete()
+    .eq("id", id);
+}
+
+async getById(id: string) {
+  return await supabase
+    .from("organization_users")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+}
+
+
 }
 
 export const organizationUserRepository =

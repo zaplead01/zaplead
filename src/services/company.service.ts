@@ -1,36 +1,42 @@
-import { organizationRepository } from "@/src/repositories/organization.repository";
-
 class CompanyService {
-  async getCurrent(userId: string) {
-    const { data, error } =
-      await organizationRepository.getCurrentByUser(userId);
+  async getCurrent() {
+    const response = await fetch("/api/company");
 
-    if (error) {
-      throw error;
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ??
+          "Erro ao carregar empresa."
+      );
     }
 
-    return data;
+    return result;
   }
 
-  async update(
-    organizationId: string,
-    data: {
-      name?: string;
-      phone?: string | null;
-      email?: string | null;
-    }
-  ) {
-    const { data: organization, error } =
-      await organizationRepository.update(
-        organizationId,
-        data
+  async update(data: {
+    name?: string;
+    phone?: string | null;
+    email?: string | null;
+  }) {
+    const response = await fetch("/api/company", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ??
+          "Erro ao atualizar empresa."
       );
-
-    if (error) {
-      throw error;
     }
 
-    return organization;
+    return result;
   }
 }
 

@@ -1,76 +1,37 @@
+import { authService } from "./auth.service";
+import { dashboardRepository } from "@/src/repositories/dashboard.repository";
 import { pipelineRepository } from "@/src/repositories/pipeline.repository";
-
-import { currentOrganizationService } from "@/src/services/current-organization.service";
-
-import { Pipeline } from "@/src/types/pipeline/pipeline";
-
-import {
-  success,
-  failure,
-} from "@/src/lib/result";
-
-import { getErrorMessage } from "@/src/utils/get-error-message";
 
 class PipelineService {
   async list() {
-    try {
-      const context =
-        await currentOrganizationService.get();
+    const {
+      data: { user },
+    } = await authService.me();
 
-      if (!context.success || !context.data) {
-        return failure(
-          context.message ??
-            "Organização não encontrada."
-        );
-      }
-
-      const { organizationId } =
-        context.data;
-
-      const { data, error } =
-        await pipelineRepository.list(
-          organizationId
-        );
-
-      if (error) {
-        return failure(
-          getErrorMessage(error)
-        );
-      }
-
-      return success<Pipeline[]>(
-        data ?? []
-      );
-    } catch (error) {
-      return failure(
-        getErrorMessage(error)
-      );
+    if (!user) {
+      throw new Error("Usuário não autenticado.");
     }
-  }
 
-  async moveCustomer(
-    customerId: string,
-    stageId: string
-  ) {
-    try {
-      const { error } =
-        await pipelineRepository.updateCustomerStage(
-          customerId,
-          stageId
-        );
+    const { data: membership } =
+      await dashboardRepository.getMembership(user.id);
 
-      if (error) {
-        return failure(
-          getErrorMessage(error)
-        );
-      }
-
-      return success(true);
-    } catch (error) {
-      return failure(
-        getErrorMessage(error)
-      );
+    if (!membership) {
+      throw new Error("Organização não encontrada.");
     }
+
+    const organizationId =
+      membership.organizations.id;
+
+    const { data, error } =
+      await pipelineRepository.list(
+        organizationId
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    return data ?? [];
   }
 }
 

@@ -134,11 +134,9 @@ export function CustomerCard({
           </div>
 
           {customer.estimated_value ? (
-            <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
-              {formatCurrency(
-                customer.estimated_value
-              )}
-            </div>
+            <div className="self-start rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+  {formatCurrency(customer.estimated_value)}
+</div>
           ) : null}
         </div>
 

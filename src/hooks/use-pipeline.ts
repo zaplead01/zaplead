@@ -1,38 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 import { pipelineService } from "@/src/services/pipeline.service";
 
-import { Pipeline } from "@/src/types/pipeline/pipeline";
-
-export function usePipeline() {
-  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+export function usePipelines() {
+  const [pipelines, setPipelines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-
-    const result = await pipelineService.list();
-console.log("RESULT", result);
-            if (!result.success) {
-            console.error(result.message);
-            setLoading(false);
-            return;
-            }
-
-    setPipelines(result.data ?? []);
-    console.log("PIPELINES", result.data);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
+    async function load() {
+      try {
+        const data = await pipelineService.list();
+        setPipelines(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     load();
-  }, [load]);
+  }, []);
 
   return {
     pipelines,
     loading,
-    reload: load,
   };
 }
+
+export const usePipeline = usePipelines;

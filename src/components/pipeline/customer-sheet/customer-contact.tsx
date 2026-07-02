@@ -9,6 +9,8 @@ import {
 import { Customer } from "@/src/types/customer/customer";
 import { Input } from "@/src/components/ui/input";
 
+import { PhoneInput } from "@/src/components/ui/phone-input";
+
 import {
   Card,
   CardContent,
@@ -59,15 +61,16 @@ export function CustomerContact({
           icon={<Phone size={18} />}
           title="Telefone"
           value={editing ? (
-  <Input
-    value={form.phone}
-    onChange={(e) =>
-      setForm((prev) => ({
-        ...prev,
-        phone: e.target.value,
-      }))
-    }
-  />
+  <PhoneInput
+  value={form.phone}
+  onChange={(value) =>
+    setForm((prev) => ({
+      ...prev,
+      phone: value,
+    }))
+  }
+  
+/>
 ) : (
   customer.phone || "-"
 )}
