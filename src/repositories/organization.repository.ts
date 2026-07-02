@@ -11,18 +11,34 @@ class OrganizationRepository {
   }
 
   async getCurrentByUser(userId: string) {
-    const { data: membership, error } =
-      await organizationUserRepository.getByUser(userId);
+  const { data: membership, error } =
+    await organizationUserRepository.getByUser(userId);
 
-    if (error || !membership) {
-      return {
-        data: null,
-        error,
-      };
-    }
-
-    return this.getById(membership.organization_id);
+  if (error || !membership) {
+    return {
+      data: null,
+      error,
+    };
   }
+
+  const { data: organization, error: organizationError } =
+    await this.getById(membership.organization_id);
+
+  if (organizationError || !organization) {
+    return {
+      data: null,
+      error: organizationError,
+    };
+  }
+
+  return {
+    data: {
+      ...organization,
+      role: membership.role,
+    },
+    error: null,
+  };
+}
 
   async create(data: {
     name: string;
@@ -41,7 +57,22 @@ class OrganizationRepository {
       .select()
       .single();
   }
+
+  async update(
+    id: string,
+    data: Partial<{
+      name: string;
+      phone: string | null;
+      email: string | null;
+    }>
+  ) {
+    return await supabase
+      .from("organizations")
+      .update(data)
+      .eq("id", id)
+      .select()
+      .single();
+  }
 }
 
-export const organizationRepository =
-  new OrganizationRepository();
+export const organizationRepository = new OrganizationRepository();
