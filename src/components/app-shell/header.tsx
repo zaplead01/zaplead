@@ -30,7 +30,14 @@ import {
 } from "@/src/components/ui/avatar";
 
 export function Header() {
-  const { user } = useCurrentUser();
+  const {
+  user,
+  organization,
+  subscription,
+  plan,
+} = useCurrentUser();
+
+console.log(plan);
   const { logout } = useAuth();
 
   const fullName = useMemo(() => {

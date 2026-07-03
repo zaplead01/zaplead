@@ -24,16 +24,23 @@ class SubscriptionService {
   }
 
   async getCurrent(organizationId: string) {
-    const { data, error } =
-      await subscriptionRepository.getCurrent(
-        organizationId
-      );
+  const { data, error } =
+    await subscriptionRepository.getCurrent(
+      organizationId
+    );
 
-    if (error) {
-      throw error;
-    }
+  if (error) {
+    throw error;
+  }
 
-    return data;
+  return data;
+}
+
+  async getCurrentPlan(organizationId: string) {
+    const subscription =
+      await this.getCurrent(organizationId);
+
+    return subscription?.plan ?? null;
   }
 }
 

@@ -77,21 +77,7 @@ export function CustomerActions({
           </Button>
         )}
 
-        <Button
-          variant="outline"
-          className="gap-2"
-        >
-          <Calendar className="h-4 w-4" />
-          Agendar
-        </Button>
-
-        <Button
-          variant="outline"
-          className="gap-2"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-          Mais
-        </Button>
+       
       </div>
     </div>
   );

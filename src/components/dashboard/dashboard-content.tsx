@@ -6,6 +6,7 @@ import { DashboardHeader } from "./dashboard-header";
 import { DashboardStats } from "./dashboard-stats";
 
 export function DashboardContent() {
+  
   const { dashboard, loading } = useDashboard();
 
   if (loading) {

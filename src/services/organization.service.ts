@@ -34,7 +34,7 @@ class OrganizationService {
       profile.business?.trim() ||
       `${profile.full_name.split(" ")[0]} Negócios`;
 
-    const slug = this.generateSlug(organizationName);
+    const slug = `${this.generateSlug(organizationName)}-${crypto.randomUUID().slice(0, 8)}`;
 
     const { data: organization, error } =
       await organizationRepository.create({
@@ -65,6 +65,19 @@ class OrganizationService {
 
     return organization.id;
   }
+
+  async getCurrent(userId: string) {
+  const { data, error } =
+    await organizationRepository.getCurrentByUser(userId);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+
 }
 
 export const organizationService = new OrganizationService();

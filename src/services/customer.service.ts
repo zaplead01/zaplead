@@ -2,6 +2,11 @@ import { customerRepository } from "@/src/repositories/customer.repository";
 import { dashboardRepository } from "@/src/repositories/dashboard.repository";
 import { pipelineRepository } from "@/src/repositories/pipeline.repository";
 
+
+import { organizationService } from "./organization.service";
+import { subscriptionService } from "./subscription.service";
+import { planService } from "./plan.service";
+
 import { authService } from "./auth.service";
 
 import { customerActivityService } from "./customer-activity.service";
@@ -30,6 +35,31 @@ class CustomerService {
       if (!membership) {
         return failure(Errors.ORGANIZATION_NOT_FOUND);
       }
+
+      const subscription =
+  await subscriptionService.getCurrent(
+    membership.organization_id
+  );
+
+if (!subscription) {
+  return failure("Plano da organização não encontrado.");
+}
+
+const { count } =
+  await customerRepository.countByOrganization(
+    membership.organization_id
+  );
+
+if (
+  !planService.canCreateCustomer(
+    subscription.plan,
+    count ?? 0
+  )
+) {
+  return failure(
+    `Você atingiu o limite de ${subscription.plan.max_customers} clientes do plano ${subscription.plan.name}.`
+  );
+}
 
       const { data, error } =
         await customerRepository.list(
@@ -67,6 +97,33 @@ class CustomerService {
       if (!membership) {
         return failure(Errors.ORGANIZATION_NOT_FOUND);
       }
+
+      const subscription =
+  await subscriptionService.getCurrent(
+    membership.organization_id
+  );
+
+if (!subscription) {
+  return failure("Plano não encontrado.");
+}
+
+const plan = subscription.plan;
+
+const { count } =
+  await customerRepository.countByOrganization(
+    membership.organization_id
+  );
+
+if (
+  !planService.canCreateCustomer(
+    plan,
+    count ?? 0
+  )
+) {
+  return failure(
+    `Você atingiu o limite de ${plan.max_customers} clientes do plano ${plan.name}. Faça upgrade para continuar.`
+  );
+}
 
       const { data: pipeline } =
         await pipelineRepository.getDefault(

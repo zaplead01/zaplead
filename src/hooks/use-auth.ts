@@ -34,16 +34,16 @@ export function useAuth() {
     return {
       success: true,
     };
-  } catch (error) {
-    console.error("ERRO NO LOGIN:", error);
-    return {
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Erro ao realizar login.",
-    };
-  } finally {
+  } catch (error: any) {
+  console.error("ERRO COMPLETO:", error);
+  console.error("MESSAGE:", error?.message);
+  console.error("STACK:", error?.stack);
+
+  return {
+    success: false,
+    message: error?.message ?? "Erro ao realizar login.",
+  };
+}finally {
     setLoading(false);
   }
 }

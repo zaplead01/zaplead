@@ -1,5 +1,7 @@
 "use client";
 
+import { UpgradePlanDialog } from "@/src/components/upgrade/upgrade-plan-dialog";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -68,6 +70,9 @@ export function CustomerForm({
 
   const [isCustomSource, setIsCustomSource] = useState(false);
 
+  const [upgradeOpen, setUpgradeOpen] =
+  useState(false);
+
   const {
   control,
   register,
@@ -126,9 +131,17 @@ const selectedSource =
       : await customerService.create(data);
 
     if (!result.success) {
-      toast.error(result.message);
-      return;
-    }
+
+  if (
+    result.message.toLowerCase().includes("limite")
+  ) {
+    setUpgradeOpen(true);
+    return;
+  }
+
+  toast.error(result.message);
+  return;
+}
 
     toast.success(result.message);
 
@@ -137,6 +150,7 @@ const selectedSource =
   }
 
   return (
+    <>
     <Card>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -330,6 +344,16 @@ const selectedSource =
           </FieldGroup>
         </form>
       </CardContent>
+      
     </Card>
+    <UpgradePlanDialog
+  open={upgradeOpen}
+  onOpenChange={setUpgradeOpen}
+  title="Você atingiu o limite do plano Free"
+  description="Seu plano permite cadastrar até 100 clientes. Faça upgrade para continuar utilizando o ZapLead sem limitações."
+/>
+  </>  
+    
+
   );
 }

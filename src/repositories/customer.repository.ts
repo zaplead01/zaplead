@@ -148,6 +148,19 @@ async completeFollowUp(customerId: string) {
     .single();
 }
 
+async countByOrganization(
+  organizationId: string
+) {
+  return await supabase
+    .from("customers")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("organization_id", organizationId)
+    .eq("is_active", true);
+}
+
 }
 
 export const customerRepository =

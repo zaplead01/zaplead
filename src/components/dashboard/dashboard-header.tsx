@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function DashboardHeader({ dashboard }: Props) {
+  
   return (
     <PageHeader
       title={`Olá, ${dashboard.userName}!`}
