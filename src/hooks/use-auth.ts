@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/src/services/auth.service";
-import { onboardingService } from "@/src/services/onboarding.service";
+import { accountInitializationService } from "@/src/services/account-initialization.service";
 
 export function useAuth() {
   const router = useRouter();
@@ -26,10 +26,19 @@ export function useAuth() {
     }
 
     // Inicializa o usuário no sistema
-    console.log("Login realizado, iniciando onboarding...");
-    await onboardingService.initialize();
+    const session = await authService.session();
 
-    router.replace("/dashboard");
+const user = session.data.session?.user;
+
+if (!user) {
+  throw new Error("Usuário não encontrado.");
+}
+
+await accountInitializationService.initialize(
+  user.id
+);
+
+router.replace("/dashboard");
 
     return {
       success: true,
