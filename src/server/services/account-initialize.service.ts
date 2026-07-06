@@ -15,23 +15,32 @@ export class AccountInitializeService {
       await supabaseAdmin.auth.admin.getUserById(userId);
 
     if (error || !data.user) {
+      console.error(error);
       throw new Error("Usuário não encontrado.");
     }
 
     const user = data.user;
 
+    console.log("➡️ ensureProfile");
     await this.ensureProfile(user);
+    console.log("✅ ensureProfile");
 
+    console.log("➡️ ensureOrganization");
     const organizationId =
       await this.ensureOrganization(user);
+    console.log("✅ ensureOrganization", organizationId);
 
+    console.log("➡️ ensureDefaultPipeline");
     await this.ensureDefaultPipeline(
       organizationId
     );
+    console.log("✅ ensureDefaultPipeline");
 
+    console.log("➡️ ensureFreeSubscription");
     await this.ensureFreeSubscription(
       organizationId
     );
+    console.log("✅ ensureFreeSubscription");
 
     console.log("===== ACCOUNT READY =====");
 
@@ -57,9 +66,7 @@ export class AccountInitializeService {
         avatar_url: metadata.avatar_url ?? null,
       });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
     console.log("✅ Profile criado");
   }
@@ -102,12 +109,11 @@ export class AccountInitializeService {
       });
 
     if (error || !organization) {
-      throw error;
+      console.error(error);
+      throw error ?? new Error("Erro ao criar organização.");
     }
 
-    const {
-      error: membershipError,
-    } =
+    const { error: membershipError } =
       await adminOrganizationUserRepository.create({
         organization_id: organization.id,
         user_id: user.id,
@@ -115,6 +121,7 @@ export class AccountInitializeService {
       });
 
     if (membershipError) {
+      console.error(membershipError);
       throw membershipError;
     }
 
@@ -149,7 +156,8 @@ export class AccountInitializeService {
       });
 
     if (error || !createdPipeline) {
-      throw error;
+      console.error(error);
+      throw error ?? new Error("Erro ao criar pipeline.");
     }
 
     const { error: stageError } =
@@ -202,6 +210,7 @@ export class AccountInitializeService {
       );
 
     if (stageError) {
+      console.error(stageError);
       throw stageError;
     }
 
@@ -221,23 +230,29 @@ export class AccountInitializeService {
       return;
     }
 
-    const { data: freePlan } =
+    const result =
       await adminSubscriptionRepository.getFreePlan();
 
-    if (!freePlan) {
-      throw new Error(
-        "Plano FREE não encontrado."
-      );
+    console.log("FREE PLAN RESULT:", result);
+
+    if (result.error) {
+      console.error(result.error);
+      throw result.error;
+    }
+
+    if (!result.data) {
+      throw new Error("Plano FREE não encontrado.");
     }
 
     const { error } =
       await adminSubscriptionRepository.create({
         organization_id: organizationId,
-        plan_id: freePlan.id,
+        plan_id: result.data.id,
         status: "active",
       });
 
     if (error) {
+      console.error(error);
       throw error;
     }
 

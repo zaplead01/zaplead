@@ -11,16 +11,24 @@ export function useCustomers() {
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    setLoading(true);
+  console.log("🚀 LOAD CLIENTES");
 
-    const result = await customerService.list();
+  setLoading(true);
 
-    if (result.success) {
-      setCustomers(result.data ?? []);
-    }
+  const result = await customerService.list();
 
-    setLoading(false);
+  console.log("RESULT:", result);
+
+  if (result.success) {
+    console.log("CLIENTES:", result.data?.length);
+
+    setCustomers(result.data ?? []);
+  } else {
+    console.error("ERRO:", result.message);
   }
+
+  setLoading(false);
+}
 
   useEffect(() => {
     load();

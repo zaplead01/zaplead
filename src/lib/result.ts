@@ -12,10 +12,12 @@ export function success<T>(
 }
 
 export function failure<T = never>(
-  message: string
+  message: string,
+  code?: string
 ): ServiceResponse<T> {
   return {
     success: false,
     message,
+    code,
   };
 }

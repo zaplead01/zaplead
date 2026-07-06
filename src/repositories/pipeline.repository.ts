@@ -8,9 +8,7 @@ class PipelineRepository {
         *,
         stages:pipeline_stages(
           *,
-          customers(
-            *
-          )
+          customers(*)
         )
       `)
       .eq("organization_id", organizationId)
@@ -18,6 +16,35 @@ class PipelineRepository {
       .order("created_at", {
         ascending: true,
       });
+  }
+
+  async getDefault(organizationId: string) {
+    return await supabase
+      .from("pipelines")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .eq("is_default", true)
+      .maybeSingle();
+  }
+
+  async getFirstStage(pipelineId: string) {
+    return await supabase
+      .from("pipeline_stages")
+      .select("*")
+      .eq("pipeline_id", pipelineId)
+      .order("position", {
+        ascending: true,
+      })
+      .limit(1)
+      .maybeSingle();
+  }
+
+  async getStageById(id: string) {
+    return await supabase
+      .from("pipeline_stages")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
   }
 
   async updateCustomerStage(

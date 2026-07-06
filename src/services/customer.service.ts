@@ -2,9 +2,12 @@ import { customerRepository } from "@/src/repositories/customer.repository";
 import { dashboardRepository } from "@/src/repositories/dashboard.repository";
 import { pipelineRepository } from "@/src/repositories/pipeline.repository";
 
-
-import { organizationService } from "./organization.service";
 import { subscriptionService } from "./subscription.service";
+import { permissionService } from "./permission.service";
+
+
+
+
 import { planService } from "./plan.service";
 
 import { authService } from "./auth.service";
@@ -19,62 +22,36 @@ import { getErrorMessage } from "@/src/utils/get-error-message";
 
 class CustomerService {
   async list() {
-    try {
-      const {
-        data: { user },
-      } = await authService.me();
+  try {
+    const {
+      data: { user },
+    } = await authService.me();
 
-      
-      if (!user) {
-        return failure(Errors.USER_NOT_FOUND);
-      }
+    if (!user) {
+      return failure(Errors.USER_NOT_FOUND);
+    }
 
-      const { data: membership } =
-        await dashboardRepository.getMembership(user.id);
+    const { data: membership } =
+      await dashboardRepository.getMembership(user.id);
 
-      if (!membership) {
-        return failure(Errors.ORGANIZATION_NOT_FOUND);
-      }
+    if (!membership) {
+      return failure(Errors.ORGANIZATION_NOT_FOUND);
+    }
 
-      const subscription =
-  await subscriptionService.getCurrent(
-    membership.organization_id
-  );
+    const { data, error } =
+      await customerRepository.list(
+        membership.organization_id
+      );
 
-if (!subscription) {
-  return failure("Plano da organização não encontrado.");
-}
-
-const { count } =
-  await customerRepository.countByOrganization(
-    membership.organization_id
-  );
-
-if (
-  !planService.canCreateCustomer(
-    subscription.plan,
-    count ?? 0
-  )
-) {
-  return failure(
-    `Você atingiu o limite de ${subscription.plan.max_customers} clientes do plano ${subscription.plan.name}.`
-  );
-}
-
-      const { data, error } =
-        await customerRepository.list(
-          membership.organization_id
-        );
-
-      if (error) {
-        return failure(getErrorMessage(error));
-      }
-
-      return success(data ?? []);
-    } catch (error) {
+    if (error) {
       return failure(getErrorMessage(error));
     }
+
+    return success(data ?? []);
+  } catch (error) {
+    return failure(getErrorMessage(error));
   }
+}
 
   async create(
     customer: Omit<
@@ -114,14 +91,16 @@ const { count } =
     membership.organization_id
   );
 
-if (
-  !planService.canCreateCustomer(
+const permission =
+  permissionService.canCreateCustomers(
     plan,
     count ?? 0
-  )
-) {
+  );
+
+if (!permission.allowed) {
   return failure(
-    `Você atingiu o limite de ${plan.max_customers} clientes do plano ${plan.name}. Faça upgrade para continuar.`
+    permission.message!,
+    permission.code
   );
 }
 

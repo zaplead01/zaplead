@@ -15,12 +15,18 @@ class AdminSubscriptionRepository {
   }
 
   async getFreePlan() {
-    return await supabaseAdmin
-      .from("plans")
-      .select("*")
-      .eq("slug", "free")
-      .single();
-  }
+  const result = await supabaseAdmin
+    .from("plans")
+    .select("*")
+    .eq("slug", "free")
+    .maybeSingle();
+
+  console.log("========== FREE PLAN ==========");
+  console.log(result);
+  console.log("===============================");
+
+  return result;
+}
 
   async create(data: {
     organization_id: string;

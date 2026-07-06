@@ -27,6 +27,8 @@ import { Card, CardContent } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 
+import { UpgradeModal } from "@/src/components/modals/upgrade-modal";
+
 import {
   Field,
   FieldGroup,
@@ -65,6 +67,7 @@ export function CustomerForm({
   customerId,
 }: CustomerFormProps) {
   const router = useRouter();
+  
 
   const { customer } = useCustomer(customerId ?? "");
 

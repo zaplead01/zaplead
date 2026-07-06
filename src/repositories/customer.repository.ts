@@ -22,6 +22,10 @@ class CustomerRepository {
     .order("created_at", {
       ascending: false,
     });
+
+    
+
+
 }
 
   async getById(id: string) {
@@ -160,6 +164,8 @@ async countByOrganization(
     .eq("organization_id", organizationId)
     .eq("is_active", true);
 }
+
+
 
 }
 
