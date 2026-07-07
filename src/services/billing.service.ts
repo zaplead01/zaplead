@@ -55,6 +55,7 @@ class BillingService {
 
       const subscription =
         subscriptionResult.data;
+        console.log("PLAN", subscription.plan);
 
       if (!subscription) {
         return failure(

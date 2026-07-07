@@ -6,9 +6,9 @@ import { Button } from "@/src/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/src/components/ui/card";
 
 type Props = {
@@ -26,11 +26,10 @@ export function CurrentPlanCard({
 }: Props) {
   return (
     <Card className="border-2 border-primary/10">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <Crown className="h-6 w-6 text-amber-500" />
-
             {plan.name.toUpperCase()}
           </CardTitle>
 

@@ -26,4 +26,12 @@ export interface Plan {
   created_at: string;
 
   updated_at: string;
+
+  max_pipelines: number;
+
+  
+max_tags: number;
+max_automations: number;
+max_webhooks: number;
+max_storage_mb: number;
 }

@@ -58,6 +58,43 @@ class PipelineRepository {
       })
       .eq("id", customerId);
   }
+
+  async count(organizationId: string) {
+  return await supabase
+    .from("pipelines")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("organization_id", organizationId);
+}
+
+async create(data: {
+  organization_id: string;
+  name: string;
+}) {
+  return await supabase
+    .from("pipelines")
+    .insert(data)
+    .select()
+    .single();
+}
+
+async createStages(
+  stages: {
+    pipeline_id: string;
+    name: string;
+    position: number;
+    color?: string | null;
+    is_won: boolean;
+    is_lost: boolean;
+  }[]
+) {
+  return await supabase
+    .from("pipeline_stages")
+    .insert(stages);
+}
+
 }
 
 export const pipelineRepository =

@@ -1,9 +1,9 @@
 import { Plan } from "@/src/types/plan/plan";
 
-export type PermissionResult = {
+type PermissionResult = {
   allowed: boolean;
-  code?: string;
   message?: string;
+  code?: string;
 };
 
 class PermissionService {
@@ -14,19 +14,16 @@ class PermissionService {
     if (!plan) {
       return {
         allowed: false,
-        code: "NO_PLAN",
         message: "Plano não encontrado.",
+        code: "PLAN_NOT_FOUND",
       };
     }
 
-    if (
-      plan.max_customers !== null &&
-      total >= plan.max_customers
-    ) {
+    if (total >= plan.max_customers) {
       return {
         allowed: false,
-        code: "PLAN_LIMIT",
         message: `Você atingiu o limite de ${plan.max_customers} clientes do plano ${plan.name}. Faça upgrade para continuar.`,
+        code: "CUSTOMER_LIMIT",
       };
     }
 
@@ -42,19 +39,16 @@ class PermissionService {
     if (!plan) {
       return {
         allowed: false,
-        code: "NO_PLAN",
         message: "Plano não encontrado.",
+        code: "PLAN_NOT_FOUND",
       };
     }
 
-    if (
-      plan.max_users !== null &&
-      total >= plan.max_users
-    ) {
+    if (total >= plan.max_users) {
       return {
         allowed: false,
+        message: "Você atingiu o limite de usuários.",
         code: "USER_LIMIT",
-        message: `Seu plano permite apenas ${plan.max_users} usuário(s).`,
       };
     }
 
@@ -63,23 +57,23 @@ class PermissionService {
     };
   }
 
-  canUsePremiumReports(
-    plan: Plan | null
+  canCreatePipeline(
+    plan: Plan | null,
+    total: number
   ): PermissionResult {
     if (!plan) {
       return {
         allowed: false,
-        code: "NO_PLAN",
         message: "Plano não encontrado.",
+        code: "PLAN_NOT_FOUND",
       };
     }
 
-    if (!plan.has_premium_reports) {
+    if (total >= plan.max_pipelines) {
       return {
         allowed: false,
-        code: "PREMIUM_REPORTS",
-        message:
-          "Relatórios Premium disponíveis apenas no plano Premium.",
+        message: "Você atingiu o limite de pipelines.",
+        code: "PIPELINE_LIMIT",
       };
     }
 
@@ -88,23 +82,23 @@ class PermissionService {
     };
   }
 
-  canUseTags(
-    plan: Plan | null
+  canCreateTag(
+    plan: Plan | null,
+    total: number
   ): PermissionResult {
     if (!plan) {
       return {
         allowed: false,
-        code: "NO_PLAN",
         message: "Plano não encontrado.",
+        code: "TAG_LIMIT",
       };
     }
 
-    if (!plan.has_tags) {
+    if (total >= plan.max_tags) {
       return {
         allowed: false,
-        code: "TAGS_PREMIUM",
-        message:
-          "Tags estão disponíveis apenas no plano Premium.",
+        message: "Limite de tags atingido.",
+        code: "TAG_LIMIT",
       };
     }
 
@@ -113,23 +107,23 @@ class PermissionService {
     };
   }
 
-  canUseApi(
-    plan: Plan | null
+  canCreateAutomation(
+    plan: Plan | null,
+    total: number
   ): PermissionResult {
     if (!plan) {
       return {
         allowed: false,
-        code: "API_PREMIUM",
         message: "Plano não encontrado.",
+        code: "PLAN_NOT_FOUND",
       };
     }
 
-    if (!plan.has_api) {
+    if (total >= plan.max_automations) {
       return {
         allowed: false,
-        code: "API_PREMIUM",
-        message:
-          "A API está disponível apenas no plano Premium.",
+        message: "Limite de automações atingido.",
+        code: "AUTOMATION_LIMIT",
       };
     }
 
@@ -138,23 +132,23 @@ class PermissionService {
     };
   }
 
-  canUseIntegrations(
-    plan: Plan | null
+  canCreateWebhook(
+    plan: Plan | null,
+    total: number
   ): PermissionResult {
     if (!plan) {
       return {
         allowed: false,
-        code: "NO_PLAN",
         message: "Plano não encontrado.",
+        code: "PLAN_NOT_FOUND",
       };
     }
 
-    if (!plan.has_integrations) {
+    if (total >= plan.max_webhooks) {
       return {
         allowed: false,
-        code: "INTEGRATIONS_PREMIUM",
-        message:
-          "Integrações estão disponíveis apenas no plano Premium.",
+        message: "Limite de Webhooks atingido.",
+        code: "WEBHOOK_LIMIT",
       };
     }
 
@@ -162,6 +156,37 @@ class PermissionService {
       allowed: true,
     };
   }
+
+  canUsePremiumReports(plan: Plan | null) {
+    return plan?.has_premium_reports === true;
+  }
+
+  canUseTags(plan: Plan | null) {
+    return plan?.has_tags === true;
+  }
+
+  canUseApi(plan: Plan | null) {
+    return plan?.has_api === true;
+  }
+
+  canUseIntegrations(plan: Plan | null) {
+    return plan?.has_integrations === true;
+  }
+
+  isFree(plan: Plan | null) {
+    return plan?.slug === "free";
+  }
+
+  isPremium(plan: Plan | null) {
+    return plan?.slug === "pro";
+  }
+
+  canCreatePipelines(plan: Plan | null, total: number) {
+  if (!plan) return false;
+
+  return total < plan.max_pipelines;
+}
+
 }
 
 export const permissionService =

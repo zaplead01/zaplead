@@ -1,6 +1,6 @@
 "use client";
 
-import { UpgradePlanDialog } from "@/src/components/upgrade/upgrade-plan-dialog";
+
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { useCustomer } from "@/src/hooks/use-customer";
+
+import { UpgradeModal } from "@/src/components/common/upgrade-modal";
 
 import { PhoneInput } from "@/src/components/ui/phone-input";
 
@@ -27,7 +29,7 @@ import { Card, CardContent } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 
-import { UpgradeModal } from "@/src/components/modals/upgrade-modal";
+
 
 import {
   Field,
@@ -128,30 +130,31 @@ const selectedSource =
 
   }, [customer, reset]);
 
-  async function onSubmit(data: CustomerFormData) {
-    const result = customerId
-      ? await customerService.update(customerId, data)
-      : await customerService.create(data);
+ async function onSubmit(data: CustomerFormData) {
+  const result = customerId
+    ? await customerService.update(customerId, data)
+    : await customerService.create(data);
 
-    if (!result.success) {
+  console.log("RESULT", result);
 
-  if (
-    result.message.toLowerCase().includes("limite")
-  ) {
-    setUpgradeOpen(true);
+  if (!result.success) {
+    if (
+      "code" in result &&
+      result.code === "CUSTOMER_LIMIT"
+    ) {
+      setUpgradeOpen(true);
+      return;
+    }
+
+    toast.error(result.message);
     return;
   }
 
-  toast.error(result.message);
-  return;
+  toast.success(result.message);
+
+  router.push("/clientes");
+  router.refresh();
 }
-
-    toast.success(result.message);
-
-    router.push("/clientes");
-    router.refresh();
-  }
-
   return (
     <>
     <Card>
@@ -349,11 +352,12 @@ const selectedSource =
       </CardContent>
       
     </Card>
-    <UpgradePlanDialog
+   <UpgradeModal
   open={upgradeOpen}
   onOpenChange={setUpgradeOpen}
-  title="Você atingiu o limite do plano Free"
+  title="Limite de clientes atingido"
   description="Seu plano permite cadastrar até 100 clientes. Faça upgrade para continuar utilizando o ZapLead sem limitações."
+  onUpgrade={() => router.push("/dashboard/billing")}
 />
   </>  
     
