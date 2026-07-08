@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   DndContext,
@@ -22,15 +22,16 @@ import { Customer } from "@/src/types/customer/customer";
 
 export function PipelineBoard() {
   const {
-  pipeline,
-  columns,
-  loading,
-  activeCustomer,
-  updateCustomer,
-  handleDragStart,
-  handleDragOver,
-  handleDragEnd,
-} = usePipelineContext();
+    pipeline,
+    columns,
+    loading,
+    activeCustomer,
+    updateCustomer,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    collisionDetection,
+  } = usePipelineContext();
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
@@ -38,7 +39,7 @@ export function PipelineBoard() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 8,
       },
     })
   );
@@ -49,6 +50,32 @@ export function PipelineBoard() {
     updateCustomer(customer);
     setSelectedCustomer(customer);
   }
+
+  const board = useMemo(
+    () => (
+      <div
+        className="
+          flex
+          h-full
+          gap-4
+          overflow-x-auto
+          overflow-y-hidden
+          rounded-2xl
+          bg-muted/20
+          p-2
+        "
+      >
+        {columns.map((column) => (
+          <KanbanColumn
+            key={column.id}
+            column={column}
+            onCustomerClick={setSelectedCustomer}
+          />
+        ))}
+      </div>
+    ),
+    [columns]
+  );
 
   if (loading) {
     return (
@@ -86,41 +113,25 @@ export function PipelineBoard() {
         }}
       />
 
-       <DndContext
-  sensors={sensors}
-  onDragStart={handleDragStart}
-  onDragOver={handleDragOver}
-  onDragEnd={handleDragEnd}
->
-  <div
-    className="
-      flex
-      h-full
-      gap-4
-      overflow-x-auto
-      overflow-y-hidden
-      rounded-2xl
-      bg-muted/20
-      px-1 py-2
-    "
-  >
-    {columns.map((column) => (
-      <KanbanColumn
-        key={column.id}
-        column={column}
-        onCustomerClick={setSelectedCustomer}
-      />
-    ))}
-  </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={collisionDetection}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        {board}
 
-  <DragOverlay>
-    {activeCustomer ? (
-      <div className="rotate-2 scale-105">
-        <CustomerCard customer={activeCustomer} />
-      </div>
-    ) : null}
-  </DragOverlay>
-</DndContext>
+        <DragOverlay
+          dropAnimation={null}
+        >
+          {activeCustomer ? (
+            <CustomerCard
+              customer={activeCustomer}
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </>
   );
 }
