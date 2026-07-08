@@ -16,21 +16,21 @@ import { CustomerSheet } from "./customer-sheet/customer-sheet";
 import { CustomerCard } from "./customer-card";
 import { KanbanColumn } from "./kanban-column";
 
-import { useKanban } from "@/src/hooks/use-kanban";
+import { usePipelineContext } from "@/src/providers/pipeline-provider";
 
 import { Customer } from "@/src/types/customer/customer";
 
 export function PipelineBoard() {
   const {
-    pipeline,
-    columns,
-    loading,
-    activeCustomer,
-    updateCustomer,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  } = useKanban();
+  pipeline,
+  columns,
+  loading,
+  activeCustomer,
+  updateCustomer,
+  handleDragStart,
+  handleDragOver,
+  handleDragEnd,
+} = usePipelineContext();
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
@@ -52,11 +52,11 @@ export function PipelineBoard() {
 
   if (loading) {
     return (
-      <div className="flex gap-5">
-        {[1, 2, 3].map((item) => (
+      <div className="grid grid-cols-6 gap-4">
+        {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton
-            key={item}
-            className="h-96 w-80 rounded-2xl"
+            key={index}
+            className="h-[650px] rounded-2xl"
           />
         ))}
       </div>
@@ -86,42 +86,41 @@ export function PipelineBoard() {
         }}
       />
 
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div
-          className="
-            flex
-            items-start
-            gap-5
-            overflow-x-auto
-            pb-4
-          "
-        >
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              onCustomerClick={
-                setSelectedCustomer
-              }
-            />
-          ))}
-        </div>
+       <DndContext
+  sensors={sensors}
+  onDragStart={handleDragStart}
+  onDragOver={handleDragOver}
+  onDragEnd={handleDragEnd}
+>
+  <div
+    className="
+      flex
+      h-full
+      gap-4
+      overflow-x-auto
+      overflow-y-hidden
+      rounded-2xl
+      bg-muted/20
+      px-1 py-2
+    "
+  >
+    {columns.map((column) => (
+      <KanbanColumn
+        key={column.id}
+        column={column}
+        onCustomerClick={setSelectedCustomer}
+      />
+    ))}
+  </div>
 
-        <DragOverlay>
-          {activeCustomer ? (
-            <div className="rotate-2 scale-105">
-              <CustomerCard
-                customer={activeCustomer}
-              />
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+  <DragOverlay>
+    {activeCustomer ? (
+      <div className="rotate-2 scale-105">
+        <CustomerCard customer={activeCustomer} />
+      </div>
+    ) : null}
+  </DragOverlay>
+</DndContext>
     </>
   );
 }

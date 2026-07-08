@@ -1,38 +1,91 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+
+import {
+  ChevronDown,
+  Plus,
+  MoreVertical,
+} from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+
 import { CreatePipelineDialog } from "./dialog/create-pipeline-dialog";
 
 export function PipelineToolbar() {
-  const [createOpen, setCreateOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+          rounded-2xl
+          border
+          bg-card
+          px-6
+          py-3
+        "
+      >
         <div>
-          <h2 className="text-lg font-semibold">
-            Pipeline
-          </h2>
+          <button
+            className="
+              flex
+              items-center
+              gap-2
+              text-base
+              font-semibold
+            "
+          >
+            Vendas
 
-          <p className="text-sm text-muted-foreground">
-            Selecione ou crie um pipeline.
-          </p>
+            <ChevronDown className="h-4 w-4" />
+          </button>
+
+        
         </div>
 
-        <Button
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Pipeline
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Pipeline
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                Editar Pipeline
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                Excluir Pipeline
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <CreatePipelineDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
+        open={open}
+        onOpenChange={setOpen}
       />
     </>
   );

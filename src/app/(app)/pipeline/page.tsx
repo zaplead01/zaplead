@@ -1,6 +1,5 @@
 import { PageHeader } from "@/src/components/page-header";
-import { PipelineToolbar } from "@/src/components/pipeline/pipeline-toolbar";
-import { PipelineBoard } from "@/src/components/pipeline/pipeline-board";
+import { PipelineLayout } from "@/src/components/pipeline/pipeline-layout";
 
 export default function PipelinePage() {
   return (
@@ -10,9 +9,7 @@ export default function PipelinePage() {
         description="Gerencie seus clientes por etapa da negociação."
       />
 
-      <PipelineToolbar />
-
-      <PipelineBoard />
+      <PipelineLayout />
     </div>
   );
 }

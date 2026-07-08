@@ -10,7 +10,7 @@ import {
   DragStartEvent,
   DragOverEvent,
   DragEndEvent,
-  closestCenter,
+  pointerWithin,
 } from "@dnd-kit/core";
 
 import {
@@ -28,6 +28,8 @@ export function useKanban() {
     pipelines,
     loading,
   } = usePipeline();
+
+  
 
   const [pipelineState, setPipelineState] =
     useState(pipelines);
@@ -54,6 +56,10 @@ export function useKanban() {
         customers: stage.customers ?? [],
       }));
     }, [pipeline]);
+
+    const customers = useMemo(() => {
+  return columns.flatMap((column) => column.customers);
+}, [columns]);
 
   const activeCustomer =
     columns
@@ -292,26 +298,29 @@ export function useKanban() {
         );
       }
     }
+
+ 
   }
 
-  return {
-    pipeline,
+ return {
+  pipeline,
 
-    columns,
+  columns,
 
-    loading,
+  customers,
 
-    activeCustomer,
+  loading,
 
-    updateCustomer,
+  activeCustomer,
 
-    handleDragStart,
+  updateCustomer,
 
-    handleDragOver,
+  handleDragStart,
 
-    handleDragEnd,
+  handleDragOver,
 
-    collisionDetection:
-      closestCenter,
-  };
+  handleDragEnd,
+
+  collisionDetection: pointerWithin,
+};
 }
